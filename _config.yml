@@ -1,5 +1,5 @@
 theme: jekyll-theme-minimal
 title: Book Recommender
 desctiption: A book recommendation web application that aims to improve the GoodReads experience
-logo: /assets/images/logo.png
+logo: /logo.png
 show_downloads: true
