@@ -1,0 +1,44 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'jacoco'
+}
+
+group = 'io.bookself'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// Setup Jacoco to generate the xml report
+jacocoTestReport {
+	reports {
+		xml.enabled true
+	}
+}
+
+// Setup Jacoco to fail the build if code coverage is under 80%
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.8
+			}
+		}
+	}
+}
+check.dependsOn jacocoTestCoverageVerification
+
+test {
+	useJUnitPlatform()
+}
+
+
