@@ -1,0 +1,59 @@
+import static config.Project.*;
+import static config.Dependencies.*;
+
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'io.freefair.lombok'
+    id 'java'
+    id 'jacoco'
+}
+
+group = groupName
+version = projectVersion
+sourceCompatibility = javaVersion
+
+repositories {
+    mavenCentral()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+    implementation springBootStarter
+    implementation springBootStarterActuator
+    implementation springBootStarterDataJpa
+    implementation postgresql
+
+    testImplementation springBootStarterTest
+    testRuntimeOnly h2Database
+}
+
+// Setup Jacoco to generate the xml report
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+// Setup Jacoco to fail the build if code coverage is under 80%
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = minimumCodeCoverage
+            }
+        }
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
+
+test {
+    useJUnitPlatform()
+}

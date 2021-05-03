@@ -1,4 +1,4 @@
-package io.bookself.backend;
+package xyz.bookself;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

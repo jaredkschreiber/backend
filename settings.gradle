@@ -1,2 +1,12 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version "2.4.5"
+        id 'io.spring.dependency-management' version "1.0.11.RELEASE"
+        id "io.freefair.lombok" version "6.0.0-m2"
+    }
+}
+
 rootProject.name = 'backend'
-include 'book-management'
+include 'apis'
+include 'book-service'
+include 'user-service'
