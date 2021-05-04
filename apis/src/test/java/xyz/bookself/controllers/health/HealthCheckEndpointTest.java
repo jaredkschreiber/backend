@@ -27,7 +27,7 @@ public class HealthCheckEndpointTest {
     }
 
     @Test
-    public void endPointPingShouldExistAndItShouldRespondWithTheStringPong() throws Exception {
+    public void endpointPingShouldExistAndItShouldRespondWithTheStringPong() throws Exception {
         this.mockMvc.perform(get("/ping"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("pong"));
