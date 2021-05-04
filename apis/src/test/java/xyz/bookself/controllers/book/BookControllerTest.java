@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class BookControllerTest {
+class BookControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -31,7 +31,7 @@ public class BookControllerTest {
     private BookRepository bookRepository;
 
     @Test
-    public void givenBookExists_whenIdIsSuppliedToBookEndpoint_thenBookIsReturned()
+    void givenBookExists_whenIdIsSuppliedToBookEndpoint_thenBookIsReturned()
             throws Exception {
         final String validBookId = "9999999999";
         final Book bookThatExistsInDatabase = new Book();
@@ -42,7 +42,7 @@ public class BookControllerTest {
     }
 
     @Test
-    public void givenBookDoesNotExist_whenBookIsPosted_thenSaveEndpointReturnsBook()
+    void givenBookDoesNotExist_whenBookIsPosted_thenSaveEndpointReturnsBook()
             throws Exception {
 
         final Book newBook = new Book();

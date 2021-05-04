@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class HealthCheckEndpointTest {
+class HealthCheckEndpointTest {
 
     @Autowired
     private HealthCheckController healthCheckController;
@@ -22,12 +22,12 @@ public class HealthCheckEndpointTest {
     private MockMvc mockMvc;
 
     @Test
-    public void pingOfHealthCheckControllerShouldReturnTheStringPong() {
+    void pingOfHealthCheckControllerShouldReturnTheStringPong() {
         assertThat(healthCheckController.ping()).isEqualTo("pong");
     }
 
     @Test
-    public void endpointPingShouldExistAndItShouldRespondWithTheStringPong() throws Exception {
+    void endpointPingShouldExistAndItShouldRespondWithTheStringPong() throws Exception {
         this.mockMvc.perform(get("/ping"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("pong"));

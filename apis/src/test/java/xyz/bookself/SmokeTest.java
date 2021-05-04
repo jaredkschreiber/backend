@@ -10,7 +10,7 @@ import xyz.bookself.controllers.book.BookController;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class SmokeTest {
+class SmokeTest {
 
     @Autowired
     private BookRepository bookRepository;
@@ -22,17 +22,17 @@ public class SmokeTest {
     private HealthCheckController healthCheckController;
 
     @Test
-    public void bookRepositoryLoads() {
+    void bookRepositoryLoads() {
         assertThat(bookRepository).isNotNull();
     }
 
     @Test
-    public void bookControllerLoads() {
+    void bookControllerLoads() {
         assertThat(bookController).isNotNull();
     }
 
     @Test
-    public void healthCheckControllerLoads() {
+    void healthCheckControllerLoads() {
         assertThat(healthCheckController).isNotNull();
     }
 }
