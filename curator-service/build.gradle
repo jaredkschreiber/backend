@@ -21,6 +21,7 @@ dependencies {
     implementation project(':book-service')
     implementation springBootStarter
     implementation springBootStarterWebFlux
+    implementation springBootStarterDataJpa
     implementation h2Database
     implementation gson
     testImplementation springBootStarterTest

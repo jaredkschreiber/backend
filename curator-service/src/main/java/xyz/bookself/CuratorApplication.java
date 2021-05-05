@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import xyz.bookself.books.domain.Book;
+import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.entities.ScrapedBook;
-import xyz.bookself.preprocessors.DateFormatter;
+import xyz.bookself.transformers.Transformer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,11 +25,13 @@ public class CuratorApplication implements CommandLineRunner {
 
     private static String booksDir = "./";
 
-    private final DateFormatter dateFormatter;
+    private final Transformer transformer;
+    private final BookRepository bookRepository;
 
     @Autowired
-    public CuratorApplication(DateFormatter formatter) {
-        this.dateFormatter = formatter;
+    public CuratorApplication(Transformer formatter, BookRepository repository) {
+        this.transformer = formatter;
+        this.bookRepository = repository;
     }
 
     public static void main(String[] args) {
@@ -43,10 +45,10 @@ public class CuratorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        final Set<Book> books = new HashSet<>();
         if(Files.isDirectory(Path.of(booksDir))) {
            Files.walk(Path.of(booksDir))
                    .filter(path -> !Files.isDirectory(path))
+                   .filter(path -> path.getFileName().toString().startsWith("_"))
                    .filter(path -> path.getFileName().toString().endsWith(".json"))
                    .map(path -> {
                        Set<ScrapedBook> scrapedBooks = new HashSet<>();
@@ -54,14 +56,20 @@ public class CuratorApplication implements CommandLineRunner {
                            final BufferedReader bufferedReader = Files.newBufferedReader(path);
                            final Gson gson = new Gson();
                            scrapedBooks = gson.fromJson(bufferedReader, new TypeToken<Set<ScrapedBook>>() {}.getType());
-                       } catch (IOException ignored) {
+                       } catch (IOException ioe) {
+                           log.error("File read error: " + path.getFileName().toString());
                        }
                        return scrapedBooks;
                    })
                    .flatMap(Collection::stream)
-                   .map(dateFormatter::transformToBook)
-                   .forEach(books::add);
+                   .map(transformer::transformToBook)
+                   .forEach(book -> {
+                       try {
+                           bookRepository.save(book);
+                       } catch (Exception e) {
+                           log.error("Failed to persist " + book.getId());
+                       }
+                   });
         }
-        //books.forEach(book -> log.info("Book " + book.getId() + " is published on " + book.getPublished().toString()));
     }
 }
