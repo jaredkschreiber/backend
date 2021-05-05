@@ -10,3 +10,5 @@ rootProject.name = 'backend'
 include 'apis'
 include 'book-service'
 include 'user-service'
+include 'curator-service'
+

@@ -1,0 +1,13 @@
+server:
+  port: 8888
+spring:
+  main:
+    web-application-type: none
+  datasource:
+    url: jdbc:postgresql://${BOOKSELF_DB_HOST:localhost}:${BOOKSELF_DB_PORT:5432}/bookself
+    username: ${BOOKSELF_DB_USER:postgres}
+    password: ${BOOKSELF_DB_PASS:bookself}
+    platform: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
