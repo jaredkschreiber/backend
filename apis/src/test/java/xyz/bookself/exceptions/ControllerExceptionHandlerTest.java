@@ -28,13 +28,16 @@ class ControllerExceptionHandlerTest {
     private BookRepository bookRepository;
 
     @Test
-    void givenBookDoesNotExist_whenGetRequestedWithBookId_thenResponseShouldBeNotFound()
+    void givenBookDoesNotExist_whenGetBookIsRequested_thenResponseShouldBe404AndBodyShouldContainPath()
             throws Exception {
-        final String nonExistentId = "10000000000";
-        when(bookRepository.findById(nonExistentId)).thenThrow(NoSuchElementException.class);
-        mockMvc.perform(get("/book/" + nonExistentId))
-                .andExpect(status().isNotFound())
+
+        final String pathToNonExistentResource = "/book/10000000000";
+
+        when(bookRepository.findById(pathToNonExistentResource)).thenThrow(NoSuchElementException.class);
+
+        mockMvc.perform(get(pathToNonExistentResource))
                 .andDo(print())
-                .andExpect(content().string(containsString("/book/" + nonExistentId)));
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString(pathToNonExistentResource)));
     }
 }
