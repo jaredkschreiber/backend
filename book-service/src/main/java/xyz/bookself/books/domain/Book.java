@@ -27,10 +27,7 @@ public class Book {
     private String id;
     private String title;
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "books_authors",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id"))
+    @JoinTable(name = "books_authors", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
     private Set<Author> authors = new HashSet<>();
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "genres", joinColumns = @JoinColumn(name = "book_id"))
