@@ -27,6 +27,7 @@ jar {
 
 dependencies {
     implementation springBootStarter
+    implementation springBootStarterWeb
     implementation springBootStarterActuator
     implementation springBootStarterDataJpa
     implementation postgresql
