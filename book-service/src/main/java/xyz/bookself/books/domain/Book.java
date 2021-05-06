@@ -1,5 +1,6 @@
 package xyz.bookself.books.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,11 +23,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "books")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "authors" })
 public class Book {
     @Id
     private String id;
     private String title;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "books_authors",
             joinColumns = @JoinColumn(name = "book_id"),
