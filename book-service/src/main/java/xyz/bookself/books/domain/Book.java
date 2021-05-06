@@ -1,6 +1,5 @@
 package xyz.bookself.books.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,7 +22,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "books")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "authors" })
 public class Book {
     @Id
     private String id;
