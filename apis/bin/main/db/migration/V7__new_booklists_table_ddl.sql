@@ -1,4 +1,4 @@
-create table booksinlist(
+create table books_in_list(
     list_id varchar(25),
     book_in_list varchar(10),
     primary key (list_id, book_in_list),
@@ -6,7 +6,7 @@ create table booksinlist(
 );
 
 -- book list table
-create table booklists (
+create table book_lists (
    id varchar(25) primary key,
    list_type list_type,
    num_books int

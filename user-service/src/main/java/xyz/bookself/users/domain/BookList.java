@@ -10,15 +10,15 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "booklists")
+@Table(name = "book_lists")
 public class BookList {
     @Id
     private String id;
     @Enumerated(EnumType.STRING)
-    private BookListEnum list_type;
-    private int num_books;
+    private BookListEnum listType;
+    private int numBooks;
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "booksinlist", joinColumns = @JoinColumn(name = "list_id"))
+    @CollectionTable(name = "books_in_list", joinColumns = @JoinColumn(name = "list_id"))
     @Column(name = "book_in_list")
     private Set<String> books= new HashSet<>();
 
