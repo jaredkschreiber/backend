@@ -1,0 +1,6 @@
+xyz/bookself/users/domain/BookListEnum.java
+ xyz.bookself.users.domain.BookListEnum
+xyz/bookself/users/repository/BookListRepository.java
+ xyz.bookself.users.repository.BookListRepository
+xyz/bookself/users/domain/BookList.java
+ xyz.bookself.users.domain.BookList
