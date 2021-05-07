@@ -3,6 +3,10 @@ HELP.md
 # Gradle
 .gradle
 **/build/
+**/bin/
+**/.project
+**/.settings/
+**/.classpath
 !src/**/build/
 !gradle-wrapper.jar
 .gradletasknamecache
