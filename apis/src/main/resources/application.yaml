@@ -1,6 +1,0 @@
-bookself:
-  api:
-    max-returned-books: 60
-    max-returned-genres: 12
-  cors:
-    allowed-origins: ${BOOKSELF_CORS_ALLOWED_ORIGINS:*}
