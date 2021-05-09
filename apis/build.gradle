@@ -27,6 +27,8 @@ dependencies {
 	implementation springBootStarterDataJpa
 	implementation flywayCore
 	implementation postgresql
+
+	annotationProcessor springBootConfigurationProcessor
 	
 	testImplementation springBootStarterTest
 	testRuntimeOnly h2Database
