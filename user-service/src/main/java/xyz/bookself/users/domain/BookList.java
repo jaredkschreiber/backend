@@ -16,7 +16,6 @@ public class BookList {
     private String id;
     @Enumerated(EnumType.STRING)
     private BookListEnum listType;
-    private int numBooks;
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "books_in_list", joinColumns = @JoinColumn(name = "list_id"))
     @Column(name = "book_in_list")
