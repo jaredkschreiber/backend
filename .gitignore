@@ -2,6 +2,7 @@ HELP.md
 
 # Gradle
 .gradle
+build-cache/
 **/build/
 !src/**/build/
 !gradle-wrapper.jar
