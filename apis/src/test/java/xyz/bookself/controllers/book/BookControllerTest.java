@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -38,9 +39,6 @@ class BookControllerTest {
 
     @Value("${bookself.api.max-returned-books}")
     private int maxReturnedBooks;
-
-    @Value("${bookself.api.max-returned-genres}")
-    private int maxReturnedGenres;
 
     @Test
     void givenBookExists_whenIdIsSuppliedToBookEndpoint_thenBookIsReturned()
@@ -77,7 +75,9 @@ class BookControllerTest {
     }
 
     @Test
-    void givenThereAreEnoughBooks_whenGetRequestedToBooksAll_thenSixtyBooksAreReturned() throws Exception {
+    void givenThereAreEnoughBooks_whenGetRequestedToBooksAll_thenNBooksShouldBeReturned()
+            throws Exception {
+
         final Collection<Book> sixtyBooks = IntStream.range(0, maxReturnedBooks).mapToObj(i -> {
             Book b = new Book();
             b.setId("_" + i);
@@ -86,7 +86,7 @@ class BookControllerTest {
 
         when(bookRepository.findAnyBooks(maxReturnedBooks)).thenReturn(sixtyBooks);
 
-        mockMvc.perform(get(apiPrefix + "/all"))
+        mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(TestUtilities.toJsonString(sixtyBooks)));
     }

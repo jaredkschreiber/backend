@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
@@ -48,7 +47,7 @@ public class BookController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/any")
     public ResponseEntity<Collection<Book>> getBooks() {
         final Collection<Book> books =  bookRepository.findAnyBooks(apiConfiguration.getMaxReturnedBooks());
         return new ResponseEntity<>(books, HttpStatus.OK);

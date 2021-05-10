@@ -24,7 +24,7 @@ public class GenreController {
         this.bookRepository = repository;
     }
 
-    @GetMapping("/all")
+    @GetMapping("/any")
     public ResponseEntity<Collection<String>> getGenres() {
         final Collection<String> genres = bookRepository.findAnyGenres(apiConfiguration.getMaxReturnedGenres());
         return new ResponseEntity<>(genres, HttpStatus.OK);
