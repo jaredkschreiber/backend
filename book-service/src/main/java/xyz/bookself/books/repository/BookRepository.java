@@ -11,7 +11,7 @@ public interface BookRepository extends JpaRepository<Book, String> {
     @Query(nativeQuery = true, value = "SELECT * FROM books ORDER BY random() LIMIT ?1")
     Collection<Book> findAnyBooks(int limit);
 
-    @Query(nativeQuery = true, value = "SELECT genre FROM genres ORDER BY random() LIMIT ?1")
+    @Query(nativeQuery = true, value = "SELECT genre FROM (SELECT DISTINCT genre FROM genres) AS genre ORDER BY random() LIMIT ?1")
     Collection<String> findAnyGenres(int limit);
 
     @Query(nativeQuery = true, value = "SELECT * FROM books WHERE id IN (SELECT book_id FROM books_authors WHERE author_id=?1) LIMIT ?2")
