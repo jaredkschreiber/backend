@@ -1,22 +1,26 @@
 package xyz.bookself.controllers.book;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.repository.BookRepository;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,11 +28,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BookControllerTest {
 
+    private final String apiPrefix = "/v1/books";
+
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private BookRepository bookRepository;
+
+    @Value("${bookself.api.max-returned-books}")
+    private int maxReturnedBooks;
+
+    @Value("${bookself.api.max-returned-genres}")
+    private int maxReturnedGenres;
 
     @Test
     void givenBookExists_whenIdIsSuppliedToBookEndpoint_thenBookIsReturned()
@@ -37,34 +49,45 @@ class BookControllerTest {
         final Book bookThatExistsInDatabase = new Book();
         bookThatExistsInDatabase.setId(validBookId);
         when(bookRepository.findById(validBookId)).thenReturn(Optional.of(bookThatExistsInDatabase));
-        mockMvc.perform(get("/book/" + validBookId))
+        mockMvc.perform(get(apiPrefix + "/" + validBookId))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void givenBookDoesNotExist_whenBookIsPosted_thenSaveEndpointReturnsBook()
+    void givenAuthorId_whenGetRequestedOnBookList_thenAllBooksWrittenByAuthorAreReturned()
             throws Exception {
 
-        final Book newBook = new Book();
-        final String id = "999999999";
-        final int pages = 100;
-        newBook.setId(id);
-        newBook.setPages(pages);
+        final String validAuthorId = "12345";
+        final Author author = new Author();
+        author.setId(validAuthorId);
+        final Set<Book> books = IntStream.range(100, 110)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    b.setAuthors(new HashSet<>(Collections.singletonList(author)));
+                    return b;
+                }).collect(Collectors.toSet());
+        final String jsonContent = TestUtilities.toJsonString(books);
 
-        when(bookRepository.save(newBook)).thenReturn(newBook);
+        when(bookRepository.findAllByAuthor(validAuthorId, maxReturnedBooks)).thenReturn(books);
 
-        final String jsonContent = toJsonString(newBook);
-
-        mockMvc.perform(
-                post("/book/save")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonContent))
+        mockMvc.perform(get(apiPrefix + "/by-author?authorId=" + validAuthorId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonContent));
     }
 
-    private String toJsonString(Object o) throws JsonProcessingException {
-        final ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(o);
+    @Test
+    void givenThereAreEnoughBooks_whenGetRequestedToBooksAll_thenSixtyBooksAreReturned() throws Exception {
+        final Collection<Book> sixtyBooks = IntStream.range(0, maxReturnedBooks).mapToObj(i -> {
+            Book b = new Book();
+            b.setId("_" + i);
+            return b;
+        }).collect(Collectors.toSet());
+
+        when(bookRepository.findAnyBooks(maxReturnedBooks)).thenReturn(sixtyBooks);
+
+        mockMvc.perform(get(apiPrefix + "/all"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(TestUtilities.toJsonString(sixtyBooks)));
     }
 }

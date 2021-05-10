@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ControllerExceptionHandlerTest {
 
+    private final String apiPrefix = "/v1/books";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,7 +33,7 @@ class ControllerExceptionHandlerTest {
     void givenBookDoesNotExist_whenGetBookIsRequested_thenResponseShouldBe404AndBodyShouldContainPath()
             throws Exception {
 
-        final String pathToNonExistentResource = "/book/10000000000";
+        final String pathToNonExistentResource = apiPrefix + "/10000000000";
 
         when(bookRepository.findById(pathToNonExistentResource)).thenThrow(NoSuchElementException.class);
 

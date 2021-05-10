@@ -2,10 +2,19 @@ package xyz.bookself.users.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
