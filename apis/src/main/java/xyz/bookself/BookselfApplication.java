@@ -12,16 +12,16 @@ import xyz.bookself.config.BookselfCorsConfiguration;
 @SpringBootApplication
 @ConfigurationPropertiesScan({ "xyz.bookself.config" })
 @Slf4j
-public class BackendApplication {
+public class BookselfApplication {
 
 	private final BookselfCorsConfiguration corsConfiguration;
 
-	public BackendApplication(BookselfCorsConfiguration configuration) {
+	public BookselfApplication(BookselfCorsConfiguration configuration) {
 		this.corsConfiguration = configuration;
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
+		SpringApplication.run(BookselfApplication.class, args);
 	}
 
 	@Bean

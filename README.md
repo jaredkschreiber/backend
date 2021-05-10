@@ -20,6 +20,16 @@ JDK 11 is required to build and run this application.
 
 Since we're using the Gradle Wrapper, there is no need to install Gradle locally. Just use `./gradlew` or `gradle.bat`.
 
+### Required Environment Variables
+Environment Variable | Default | Description
+-------------------- | ------- | -----------
+`BOOKSELF_DB_HOST` | `localhost` | The database host
+`BOOKSELF_DB_NAME` | `bookself` | The database name
+`BOOKSELF_DB_PORT` | `5432` | The database port
+`BOOKSELF_DB_USER` | `postgres` | The database user name
+`BOOKSELF_DB_PASS` |  | The database password
+`BOOKSELF_CORS_ALLOWED_ORIGINS` | `*` | CORS allowed origins (Should be the front-end url unless we want to allow all origins)
+
 ### Running the Backend Application
 `$ ./gradlew :apis:bootRun`
 
@@ -33,9 +43,10 @@ Endpoint | Description
 -------- | -----------
 `/ping` | Health Check endpoint
 `/v1/books/{id}` | Get a book by id
-`/v1/books/all` | Get random books (the limit is configurable)
-`/v1/books/by-author?authorId=1234` | Get book by author
+`/v1/books/any` | Get random books (the number of books returned is configurable)
+`/v1/books/by-author?authorId=1234` | Get book whose author has an id of `1234`
 `/v1/books/by-genre?genre=Some+Genre` | Get a book by genre (Works with a single genre only)
-`/v1/genres/all` | Get random genres (the limit is configurable)
+`/v1/genres/any` | Get random genres (the number of genres returned is configurable)
 `/v1/authors/{id}` | Get author by id
+`/v1/authors/any` | Get random authors (the number of authors returned is configurable)
 
