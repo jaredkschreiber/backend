@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.Data;
 
 @Data
@@ -29,5 +31,10 @@ public class User {
     @Column(name="password_hash")
     private String passwordHash;
 
+    @CreationTimestamp
+    @Column(name="created", nullable = false, updatable = false, insertable = false)
     private LocalDate created;
+
+    @Column(name="sessionid")
+    private String session;
 }
