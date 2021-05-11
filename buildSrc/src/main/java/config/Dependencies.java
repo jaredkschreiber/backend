@@ -13,4 +13,7 @@ public class Dependencies {
     public static final String springBootStarterTest = "org.springframework.boot:spring-boot-starter-test";
     public static final String h2Database = "com.h2database:h2";
     public static final String gson = "com.google.code.gson:gson:2.8.6";
+    public static final String testContainers = "org.testcontainers:testcontainers:1.15.3";
+    public static final String testContainersPostgres = "org.testcontainers:postgresql:1.15.3";
+    public static final String testContainersJupiter = "org.testcontainers:junit-jupiter:1.15.3";
 }

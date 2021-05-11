@@ -29,8 +29,11 @@ dependencies {
 	implementation postgresql
 
 	annotationProcessor springBootConfigurationProcessor
-	
+
 	testImplementation springBootStarterTest
+	testImplementation testContainers
+	testImplementation testContainersPostgres
+	testImplementation testContainersJupiter
 	testRuntimeOnly h2Database
 }
 
@@ -55,6 +58,9 @@ check.dependsOn jacocoTestCoverageVerification
 
 test {
 	useJUnitPlatform()
+	beforeTest { descriptor ->
+		logger.lifecycle("Running test: ${descriptor}")
+	}
 }
 
 
