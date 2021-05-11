@@ -9,8 +9,11 @@ import xyz.bookself.controllers.book.AuthorController;
 import xyz.bookself.controllers.book.GenreController;
 import xyz.bookself.controllers.health.HealthCheckController;
 import xyz.bookself.controllers.book.BookController;
+import xyz.bookself.controllers.user.BookListController;
+import xyz.bookself.controllers.user.UserController;
 import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +39,13 @@ class SmokeTest {
     private HealthCheckController healthCheckController;
 
     @Autowired
+    private UserController userController;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BookListController bookListController;
 
     @Autowired
     private BookListRepository bookListRepository;
@@ -62,15 +71,9 @@ class SmokeTest {
     }
 
     @Test
-    void genreControllerLoads() {
-        assertThat(genreController).isNotNull();
+    void userControllerLoads(){
+        assertThat(userController).isNotNull();
     }
-
-    @Test
-    void healthCheckControllerLoads() {
-        assertThat(healthCheckController).isNotNull();
-    }
-
     @Test
     void userRepositoryLoads() {
         assertThat(userRepository).isNotNull();
@@ -80,4 +83,20 @@ class SmokeTest {
     void bookListRepositoryLoads() {
         assertThat(bookListRepository).isNotNull();
     }
+
+    @Test
+    void bookListControllerLoads(){
+        assertThat(bookListController).isNotNull();
+    }
+
+    @Test
+    void genreControllerLoads() {
+        assertThat(genreController).isNotNull();
+    }
+
+    @Test
+    void healthCheckControllerLoads() {
+        assertThat(healthCheckController).isNotNull();
+    }
+
 }
