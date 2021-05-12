@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.bookself.books.domain.Book;
+import xyz.bookself.books.domain.BookRank;
+import xyz.bookself.books.domain.BookWithRank;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/books")
@@ -49,7 +53,21 @@ public class BookController {
 
     @GetMapping("/any")
     public ResponseEntity<Collection<Book>> getBooks() {
-        final Collection<Book> books =  bookRepository.findAnyBooks(apiConfiguration.getMaxReturnedBooks());
+        final Collection<Book> books = bookRepository.findAnyBooks(apiConfiguration.getMaxReturnedBooks());
         return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public List<BookWithRank> getBooksBySearch(@RequestParam String q) {
+        final List<BookRank> books = bookRepository.findBooksByQuery(q, apiConfiguration.getMaxReturnedBooks());
+        return books.stream()
+            .map(bookRank -> {
+                final Book book = bookRepository.findById(bookRank.getId()).orElseThrow();
+                final Double rank = bookRank.getRank();
+                return new BookWithRank(book, rank);
+            })
+            // would be interesting to extend our filtering logic here; e.g., if we have lots of good matches, we can throw out the bad ones
+            .filter(book -> book.rank != 0)
+            .collect(Collectors.toList());
     }
 }

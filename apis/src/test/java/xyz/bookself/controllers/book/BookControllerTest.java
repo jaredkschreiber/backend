@@ -9,14 +9,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
+import xyz.bookself.books.domain.BookRank;
+import xyz.bookself.books.domain.BookWithRank;
 import xyz.bookself.books.repository.BookRepository;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -89,5 +87,27 @@ class BookControllerTest {
         mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(TestUtilities.toJsonString(sixtyBooks)));
+    }
+
+
+    @Test
+    void givenThereAreEnoughBooks_whenGetRequestedToBooksSearch_thenNBooksShouldBeReturned() throws Exception {
+        final List<BookRank> sixtyBooksAsBookRank = IntStream.range(0, maxReturnedBooks)
+            .mapToObj(i -> new BookRank() {
+                @Override
+                public Double getRank() {
+                    return ThreadLocalRandom.current().nextInt(0, 2) == 0 ?  0.0 : 1.0;
+                }
+                @Override
+                public String getId() { return "1"; }
+            })
+            .collect(Collectors.toList());
+
+        String query = "Hello";
+        when(bookRepository.findBooksByQuery(query, maxReturnedBooks)).thenReturn(sixtyBooksAsBookRank);
+        when(bookRepository.findById("1")).thenReturn(Optional.of(new Book()));
+
+        mockMvc.perform(get(apiPrefix + "/search?q=" + query))
+            .andExpect(status().isOk());
     }
 }
