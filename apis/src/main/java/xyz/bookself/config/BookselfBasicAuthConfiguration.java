@@ -44,6 +44,7 @@ public class BookselfBasicAuthConfiguration extends WebSecurityConfigurerAdapter
         http.authorizeRequests()
                 .antMatchers("/ping").permitAll() // Allow calls to /ping
                 .antMatchers("/actuator/**").permitAll() // Allow calls to all /actuator endpoints
+                .antMatchers("/v1/users/new-user").permitAll() //Allow registration endpoint to be accessed without auth
                 .anyRequest().authenticated() // Everything else needs auth -- this'll probably need to be tweaked as we go
                 .and()
                 .csrf().disable()
