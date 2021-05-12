@@ -35,6 +35,4 @@ public class User {
     @Column(name="created", nullable = false, updatable = false, insertable = false)
     private LocalDate created;
 
-    @Column(name="sessionid")
-    private String session;
 }
