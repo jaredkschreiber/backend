@@ -25,7 +25,6 @@ dependencies {
 	implementation springBootStarterWeb
 	implementation springBootStarterActuator
 	implementation springBootStarterDataJpa
-	implementation springBootStarterSecurity
 	implementation flywayCore
 	implementation postgresql
 
@@ -35,7 +34,6 @@ dependencies {
 	testImplementation testContainers
 	testImplementation testContainersPostgres
 	testImplementation testContainersJupiter
-	testImplementation springSecurityTest
 	testRuntimeOnly h2Database
 }
 
