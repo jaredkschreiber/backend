@@ -35,8 +35,43 @@ public class UserController {
     }
 
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<User>createNewUser(@RequestBody User newUser){
+    public ResponseEntity<User>createNewUser(@RequestBody NewUserDTO newUserDTO){
+        User newUser = new User();
+        newUser.setUsername(newUserDTO.getUsername());
+        newUser.setEmail(newUserDTO.getEmail());
+        newUser.setPasswordHash(newUserDTO.getPasswordHash());
         newUser.setCreated(LocalDate.now());
         return new ResponseEntity<>(userRepository.save(newUser), HttpStatus.OK);
+    }
+}
+
+class NewUserDTO
+{ 
+    private String username;
+    private String passwordHash;
+    private String email;
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getUsername(){
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

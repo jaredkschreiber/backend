@@ -3,6 +3,8 @@ package xyz.bookself.users.domain;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.HibernateException;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -24,25 +26,24 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
+@TypeDef(
+        name = "book_list_type",
+        typeClass = BookListEnumConvert.class
+)
 @Table(name = "book_lists")
 public class BookList {
     @Id
     private String id;
+    private Integer userId;
     @Enumerated(EnumType.STRING)
+    @Type( type = "book_list_type" )
     private BookListEnum listType;
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "books_in_list", joinColumns = @JoinColumn(name = "list_id"))
     @Column(name = "book_in_list")
     private Set<String> books= new HashSet<>();
 
-    public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
-        if (value == null) {
-            st.setNull(index, Types.VARCHAR);
-        }
-        else {
-            st.setObject(index,((Enum) value), Types.OTHER);
-        }
-    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -16,14 +16,18 @@ import xyz.bookself.users.domain.BookListEnum;
 import xyz.bookself.users.repository.BookListRepository;
 
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -54,18 +58,70 @@ public class BookListControllerTest {
     }
 
     @Test
+    void givenUserId_userListsShouldBeReturned()
+            throws Exception
+    {
+        final Integer givenUserId = 99;
+        final Collection<BookList> fourBookLists = IntStream.range(0, 4).mapToObj(i -> {
+            BookList b = new BookList();
+            b.setId(Integer.toHexString(i));
+            b.setUserId(givenUserId);
+            return b;
+        }).collect(Collectors.toSet());
+
+        when(bookListRepository.findUserBookLists(givenUserId)).thenReturn(fourBookLists);
+
+        mockMvc.perform(get(apiPrefix + "/get-user-book-lists?userId="+givenUserId))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void givenANewUserIsCreated_whenRoutedAtLeastOneBookListIsCreated_thenBookListIsReturned()
         throws Exception{
-        BookList newDNF = new BookList();
+
+        final UserIdDTO userIdDTO = new UserIdDTO();
+        userIdDTO.setUserId(1);
+        final Collection<BookList> oneBookList = IntStream.range(0, 0).mapToObj(i -> {
+            BookList b = new BookList();
+            b.setId(Integer.toHexString(i));
+            b.setUserId(1);
+            return b;
+        }).collect(Collectors.toSet());
+        when((bookListRepository.findUserBookLists(userIdDTO.getUserId()))).thenReturn(oneBookList);
+
+        final BookList newDNF = new BookList();
         newDNF.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
         newDNF.setListType(BookListEnum.DNF);
         when(bookListRepository.save(newDNF)).thenReturn(newDNF);
 
-        mockMvc.perform(post(apiPrefix + "/" + "new-book-lists"))
+        String requestJson= TestUtilities.toJsonString(userIdDTO);
+
+        mockMvc.perform(post(apiPrefix + "/" + "new-book-lists").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void userIsAlreadyCreate_whenUserTriesToCreateMoreCannedLists_thenTheyAreRejected()
+            throws Exception
+    {
+        final UserIdDTO userIdDTO = new UserIdDTO();
+        userIdDTO.setUserId(1);
+        String requestJson= TestUtilities.toJsonString(userIdDTO);
 
+        final Collection<BookList> fourBookLists = IntStream.range(0, 4).mapToObj(i -> {
+            BookList b = new BookList();
+            b.setId(Integer.toHexString(i));
+            b.setUserId(1);
+            return b;
+        }).collect(Collectors.toSet());
+
+        when((bookListRepository.findUserBookLists(userIdDTO.getUserId()))).thenReturn(fourBookLists);
+        mockMvc.perform(post(apiPrefix + "/" + "new-book-lists").contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson))
+                .andExpect(status().isCreated());
+
+    }
     @Test
     void addBookToExistingList()
             throws Exception

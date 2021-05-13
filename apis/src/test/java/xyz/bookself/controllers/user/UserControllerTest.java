@@ -69,12 +69,19 @@ public class UserControllerTest {
         userExists.setEmail(newUserName);
         userExists.setPasswordHash("123");
 
-        when(userRepository.save(userExists)).thenReturn(null);
+        final NewUserDTO newUserDTO = new NewUserDTO();
+        newUserDTO.setUsername(newUserEmail);
+        newUserDTO.setEmail(newUserName);
+        newUserDTO.setPasswordHash("123");
+
+        when(userRepository.save(userExists)).thenReturn(userExists);
+
+
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        String requestJson=ow.writeValueAsString(userExists);
+        String requestJson=ow.writeValueAsString(newUserDTO);
 
         mockMvc.perform(post(apiPrefix + "/new-user").contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson))

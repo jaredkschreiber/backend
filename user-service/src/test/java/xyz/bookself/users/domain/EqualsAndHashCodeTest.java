@@ -47,6 +47,7 @@ public class EqualsAndHashCodeTest {
         a.setId(id);
         a.setListType(BookListEnum.DNF);
 
+
         when(bookListRepository.save(a)).thenReturn(null);
         bookListRepository.save(a);
         when(bookListRepository.findById(id)).thenReturn(Optional.of(a));
