@@ -5,28 +5,22 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.web.bind.annotation.RequestParam;
+import xyz.bookself.security.WithBookselfUserDetails;
 import xyz.bookself.users.domain.User;
 import xyz.bookself.users.repository.UserRepository;
 
 import java.nio.charset.Charset;
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -42,7 +36,21 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @Test
-    void givenUserExists_whenGetRequestedWithIdOnPath_thenUserShouldBeReturned()
+    void testGetUser_Unauthorized() throws Exception {
+        mockMvc.perform(get(apiPrefix + "/" + 1))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = 1)
+    void testGetUser_Forbidden() throws Exception {
+        mockMvc.perform(get(apiPrefix + "/" + 2))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = 1)
+    void testGetUser_OK()
             throws Exception {
         final User userExists = new User();
 

@@ -5,12 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import xyz.bookself.security.BookselfUserDetails;
 import xyz.bookself.users.domain.User;
 import xyz.bookself.users.repository.UserRepository;
 
@@ -29,9 +26,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Integer id) {
-        final User user = userRepository.findById(id).orElseThrow();
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<User> getUser(@PathVariable Integer id,
+                                        @AuthenticationPrincipal BookselfUserDetails userDetails) {
+        // If nobody is logged in, UNAUTHORIZED
+        if (userDetails == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // If somebody is logged in but is trying to access somebody else's profile, FORBIDDEN
+        if (!userDetails.getId().equals(id)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        // Otherwise look up the user
+        return userRepository.findById(id)
+                .map(u -> new ResponseEntity<>(u, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
