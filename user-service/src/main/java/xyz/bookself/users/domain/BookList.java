@@ -35,6 +35,7 @@ public class BookList {
     @Id
     private String id;
     private Integer userId;
+    private String bookListName;
     @Enumerated(EnumType.STRING)
     @Type( type = "book_list_type" )
     private BookListEnum listType;

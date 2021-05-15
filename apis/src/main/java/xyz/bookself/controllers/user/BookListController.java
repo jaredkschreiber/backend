@@ -48,43 +48,6 @@ public class BookListController {
         return new ResponseEntity<>(userBookListId, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/new-book-lists", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Collection<BookList>> generateBookList(@RequestBody UserIdDTO userIdDTO) {
-        Collection<BookList> userBookLists = bookListRepository.findUserBookLists(userIdDTO.getUserId());
-        if(userBookLists.size() == 0) {
-            final BookList newDNF = new BookList();
-            newDNF.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
-            newDNF.setListType(BookListEnum.DNF);
-            newDNF.setUserId(userIdDTO.getUserId());
-            bookListRepository.save(newDNF);
-            userBookLists.add(newDNF);
-
-            final BookList toRead = new BookList();
-            toRead.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
-            toRead.setListType(BookListEnum.TO_READ);
-            toRead.setUserId(userIdDTO.getUserId());
-            bookListRepository.save(toRead);
-            userBookLists.add(toRead);
-
-            final BookList read = new BookList();
-            read.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
-            read.setListType(BookListEnum.TO_READ);
-            read.setUserId(userIdDTO.getUserId());
-            bookListRepository.save(read);
-            userBookLists.add(read);
-
-            final BookList current = new BookList();
-            current.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
-            current.setListType(BookListEnum.TO_READ);
-            current.setUserId(userIdDTO.getUserId());
-            bookListRepository.save(current);
-            userBookLists.add(current);
-            return new ResponseEntity<>(userBookLists, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(userBookLists, HttpStatus.CREATED);
-
-    }
-
     @PostMapping(value = "/add-book-to-list", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<BookList> addBookToList(@RequestBody BookIdListIdDTO bookIdListIdDTO) {
         final BookList foundBookList = bookListRepository.findById(bookIdListIdDTO.getListId()).orElseThrow();

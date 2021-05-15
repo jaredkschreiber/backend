@@ -76,53 +76,6 @@ public class BookListControllerTest {
     }
 
     @Test
-    void givenANewUserIsCreated_whenRoutedAtLeastOneBookListIsCreated_thenBookListIsReturned()
-        throws Exception{
-
-        final UserIdDTO userIdDTO = new UserIdDTO();
-        userIdDTO.setUserId(1);
-        final Collection<BookList> oneBookList = IntStream.range(0, 0).mapToObj(i -> {
-            BookList b = new BookList();
-            b.setId(Integer.toHexString(i));
-            b.setUserId(1);
-            return b;
-        }).collect(Collectors.toSet());
-        when((bookListRepository.findUserBookLists(userIdDTO.getUserId()))).thenReturn(oneBookList);
-
-        final BookList newDNF = new BookList();
-        newDNF.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 24));
-        newDNF.setListType(BookListEnum.DNF);
-        when(bookListRepository.save(newDNF)).thenReturn(newDNF);
-
-        String requestJson= TestUtilities.toJsonString(userIdDTO);
-
-        mockMvc.perform(post(apiPrefix + "/" + "new-book-lists").contentType(APPLICATION_JSON_UTF8)
-                .content(requestJson))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void userIsAlreadyCreate_whenUserTriesToCreateMoreCannedLists_thenTheyAreRejected()
-            throws Exception
-    {
-        final UserIdDTO userIdDTO = new UserIdDTO();
-        userIdDTO.setUserId(1);
-        String requestJson= TestUtilities.toJsonString(userIdDTO);
-
-        final Collection<BookList> fourBookLists = IntStream.range(0, 4).mapToObj(i -> {
-            BookList b = new BookList();
-            b.setId(Integer.toHexString(i));
-            b.setUserId(1);
-            return b;
-        }).collect(Collectors.toSet());
-
-        when((bookListRepository.findUserBookLists(userIdDTO.getUserId()))).thenReturn(fourBookLists);
-        mockMvc.perform(post(apiPrefix + "/" + "new-book-lists").contentType(APPLICATION_JSON_UTF8)
-                .content(requestJson))
-                .andExpect(status().isCreated());
-
-    }
-    @Test
     void addBookToExistingList()
             throws Exception
     {

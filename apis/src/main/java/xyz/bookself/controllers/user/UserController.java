@@ -5,13 +5,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import xyz.bookself.users.domain.BookList;
+import xyz.bookself.users.domain.BookListEnum;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import xyz.bookself.security.BookselfUserDetails;
+
 import xyz.bookself.users.domain.User;
+import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/users")
@@ -19,10 +32,12 @@ import java.time.LocalDate;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final BookListRepository bookListRepository;
 
     @Autowired
-    public UserController(UserRepository repository) {
+    public UserController(UserRepository repository, BookListRepository bookListRepository) {
         this.userRepository = repository;
+        this.bookListRepository = bookListRepository;
     }
 
     @GetMapping("/{id}")
@@ -47,16 +62,44 @@ public class UserController {
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<User>createNewUser(@RequestBody NewUserDTO newUserDTO){
         User newUser = new User();
+
         newUser.setUsername(newUserDTO.getUsername());
         newUser.setEmail(newUserDTO.getEmail());
         newUser.setPasswordHash(newUserDTO.getPasswordHash());
         newUser.setCreated(LocalDate.now());
-        return new ResponseEntity<>(userRepository.save(newUser), HttpStatus.OK);
+        userRepository.save(newUser);
+
+        createNewBookLists(newUser);
+
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
+    private void createNewBookLists(User newUser) {
+        final BookList newDNF = new BookList();
+        newDNF.setId(createUUID());
+        newDNF.setListType(BookListEnum.DNF);
+        newDNF.setUserId(newUser.getId());
+        bookListRepository.save(newDNF);
+
+        final BookList read = new BookList();
+        read.setId(createUUID());
+        read.setListType(BookListEnum.READ);
+        read.setUserId(newUser.getId());
+        bookListRepository.save(read);
+
+        final BookList current = new BookList();
+        current.setId(createUUID());
+        current.setListType(BookListEnum.READING);
+        current.setUserId(newUser.getId());
+        bookListRepository.save(current);
+    }
+
+    private String createUUID() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 24);
     }
 }
 
-class NewUserDTO
-{ 
+class NewUserDTO { 
     private String username;
     private String passwordHash;
     private String email;
