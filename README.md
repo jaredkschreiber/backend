@@ -39,14 +39,18 @@ __OR, while in the same directory as the executable JAR,__
 
 ### Endpoints
 
-Endpoint | Description
--------- | -----------
-`/ping` | Health Check endpoint
-`/v1/books/{id}` | Get a book by id
-`/v1/books/any` | Get random books (the number of books returned is configurable)
-`/v1/books/by-author?authorId=1234` | Get book whose author has an id of `1234`
-`/v1/books/by-genre?genre=Some+Genre` | Get a book by genre (Works with a single genre only)
-`/v1/genres/any` | Get random genres (the number of genres returned is configurable)
-`/v1/authors/{id}` | Get author by id
-`/v1/authors/any` | Get random authors (the number of authors returned is configurable)
+Method | Endpoint | Description
+------ | -------- | -----------
+GET | `/ping` | Health Check endpoint
+GET | `/v1/books/{id}` | Get a book by id
+GET | `/v1/books/any` | Get random books (the number of books returned is configurable)
+GET | `/v1/books/by-author?authorId=1234` | Get book whose author has an id of `1234`
+GET | `/v1/books/by-genre?genre=Some+Genre` | Get a book by genre (Works with a single genre only)
+GET | `/v1/genres/any` | Get random genres (the number of genres returned is configurable)
+GET | `/v1/authors/{id}` | Get author by id
+GET | `/v1/authors/any` | Get random authors (the number of authors returned is configurable)
+GET | `/v1/book-lists/{id}` | Get book list by id
+GET | `/v1/book-lists/{id}/books` | Get the books (ids only) in a book list
+PUT | `/v1/book-lists/{id}/update` | Update book list: Rename, add books, remove books
+GET | `/v1/users/{id}/book-lists` | Get book lists of a user
 

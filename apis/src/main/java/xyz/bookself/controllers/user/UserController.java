@@ -16,7 +16,6 @@ import xyz.bookself.users.domain.BookList;
 import xyz.bookself.users.domain.BookListEnum;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 import xyz.bookself.security.BookselfUserDetails;
 
 import xyz.bookself.users.domain.User;
@@ -24,6 +23,7 @@ import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.UUID;
 
 @RestController
@@ -60,18 +60,29 @@ public class UserController {
     }
 
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<User>createNewUser(@RequestBody NewUserDTO newUserDTO){
+    public ResponseEntity<User>createNewUser(@RequestBody UserDto userDto){
         User newUser = new User();
 
-        newUser.setUsername(newUserDTO.getUsername());
-        newUser.setEmail(newUserDTO.getEmail());
-        newUser.setPasswordHash(newUserDTO.getPasswordHash());
+        newUser.setUsername(userDto.getUsername());
+        newUser.setEmail(userDto.getEmail());
+        newUser.setPasswordHash(userDto.getPassword());
         newUser.setCreated(LocalDate.now());
         userRepository.save(newUser);
 
         createNewBookLists(newUser);
 
         return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
+    /**
+     * Get all lists user owns
+     * @param id user id
+     * @return list of shelves owned by user
+     */
+    @GetMapping("/{id}/book-lists")
+    public ResponseEntity<Collection<BookList>> getBookLists(@PathVariable Integer id) {
+        final Collection<BookList> lists = bookListRepository.findUserBookLists(id);
+        return new ResponseEntity<>(lists, HttpStatus.OK);
     }
 
     private void createNewBookLists(User newUser) {
@@ -99,32 +110,3 @@ public class UserController {
     }
 }
 
-class NewUserDTO { 
-    private String username;
-    private String passwordHash;
-    private String email;
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public String getUsername(){
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-}

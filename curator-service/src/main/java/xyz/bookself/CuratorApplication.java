@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.repository.BookRepository;
-import xyz.bookself.entities.ScrapedBook;
+import xyz.bookself.dto.BookDto;
 import xyz.bookself.transformers.Transformer;
 
 import java.io.BufferedReader;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @Slf4j
@@ -45,27 +47,37 @@ public class CuratorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        final Collection<String> booksInDatabase = bookRepository.findAll()
+                .stream()
+                .map(Book::getId)
+                .collect(Collectors.toSet());
+
         if(Files.isDirectory(Path.of(booksDir))) {
            Files.walk(Path.of(booksDir))
                    .filter(path -> !Files.isDirectory(path))
                    .filter(path -> path.getFileName().toString().startsWith("_"))
                    .filter(path -> path.getFileName().toString().endsWith(".json"))
                    .map(path -> {
-                       Set<ScrapedBook> scrapedBooks = new HashSet<>();
+                       Set<BookDto> bookDtos = new HashSet<>();
                        try {
                            final BufferedReader bufferedReader = Files.newBufferedReader(path);
                            final Gson gson = new Gson();
-                           scrapedBooks = gson.fromJson(bufferedReader, new TypeToken<Set<ScrapedBook>>() {}.getType());
+                           bookDtos = gson.fromJson(bufferedReader, new TypeToken<Set<BookDto>>() {}.getType());
                        } catch (IOException ioe) {
                            log.error("File read error: " + path.getFileName().toString());
                        }
-                       return scrapedBooks;
+                       return bookDtos;
                    })
                    .flatMap(Collection::stream)
                    .map(transformer::transformToBook)
                    .forEach(book -> {
                        try {
-                           bookRepository.save(book);
+                           if(!booksInDatabase.contains(book.getId())) {
+                               bookRepository.save(book);
+                           } else {
+                               log.info(String.format("Book %s is already in database.", book.getId()));
+                           }
                        } catch (Exception e) {
                            log.error("Failed to persist " + book.getId());
                        }

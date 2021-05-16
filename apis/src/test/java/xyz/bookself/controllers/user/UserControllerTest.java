@@ -11,12 +11,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.security.WithBookselfUserDetails;
+import xyz.bookself.users.domain.BookList;
 import xyz.bookself.users.domain.User;
+import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
 
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,6 +39,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private BookListRepository bookListRepository;
 
     @Test
     void testGetUser_Unauthorized() throws Exception {
@@ -77,10 +85,10 @@ public class UserControllerTest {
         userExists.setEmail(newUserName);
         userExists.setPasswordHash("123");
 
-        final NewUserDTO newUserDTO = new NewUserDTO();
-        newUserDTO.setUsername(newUserEmail);
-        newUserDTO.setEmail(newUserName);
-        newUserDTO.setPasswordHash("123");
+        final UserDto userDto = new UserDto();
+        userDto.setUsername(newUserEmail);
+        userDto.setEmail(newUserName);
+        userDto.setPassword("123");
 
         when(userRepository.save(userExists)).thenReturn(userExists);
 
@@ -89,12 +97,28 @@ public class UserControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        String requestJson=ow.writeValueAsString(newUserDTO);
+        String requestJson=ow.writeValueAsString(userDto);
 
         mockMvc.perform(post(apiPrefix + "/new-user").contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson))
                 .andExpect(status().isOk());
 
+    }
+
+    @Test
+    void givenUserId_userListsShouldBeReturned() throws Exception {
+        final Integer givenUserId = 99;
+        final Collection<BookList> fourBookLists = IntStream.range(0, 4).mapToObj(i -> {
+            BookList b = new BookList();
+            b.setId(Integer.toHexString(i));
+            b.setUserId(givenUserId);
+            return b;
+        }).collect(Collectors.toSet());
+
+        when(bookListRepository.findUserBookLists(givenUserId)).thenReturn(fourBookLists);
+
+        mockMvc.perform(get(apiPrefix + "/" + givenUserId + "/book-lists"))
+                .andExpect(status().isOk());
     }
 }
 

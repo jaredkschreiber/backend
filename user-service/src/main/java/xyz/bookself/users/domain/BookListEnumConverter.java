@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class BookListEnumConvert extends org.hibernate.type.EnumType{
+public class BookListEnumConverter extends org.hibernate.type.EnumType{
 
         public void nullSafeSet( PreparedStatement st, Object value, int index, SharedSessionContractImplementor session)
                 throws HibernateException, SQLException {

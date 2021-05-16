@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
-import xyz.bookself.entities.ScrapedAuthor;
-import xyz.bookself.entities.ScrapedBook;
+import xyz.bookself.dto.AuthorDto;
+import xyz.bookself.dto.BookDto;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,21 +22,21 @@ import java.util.stream.Stream;
 @Slf4j
 public class Transformer {
 
-    public Book transformToBook(ScrapedBook scrapedBook) {
+    public Book transformToBook(BookDto bookDto) {
         final Book book = new Book();
-        book.setId(scrapedBook.getId());
-        book.setTitle(scrapedBook.getTitle());
-        book.setPages(scrapedBook.getPages());
-        book.setGenres(scrapedBook.getGenres());
-        book.setBlurb(scrapedBook.getBlurb());
-        book.setAuthors(transformToAuthor(scrapedBook.getAuthors()));
-        book.setPublished(transformToLocalDate(scrapedBook.getPublished()));
+        book.setId(bookDto.getId());
+        book.setTitle(bookDto.getTitle());
+        book.setPages(bookDto.getPages());
+        book.setGenres(bookDto.getGenres());
+        book.setBlurb(bookDto.getBlurb());
+        book.setAuthors(transformToAuthor(bookDto.getAuthors()));
+        book.setPublished(transformToLocalDate(bookDto.getPublished()));
         return book;
     }
 
-    public Set<Author> transformToAuthor(final Set<ScrapedAuthor> scrapedAuthors) {
+    public Set<Author> transformToAuthor(final Set<AuthorDto> authorDtos) {
         final Set<Author> authors = new HashSet<>();
-        scrapedAuthors.stream().map(s -> {
+        authorDtos.stream().map(s -> {
             final Author a = new Author();
             a.setName(s.getName());
             a.setId(s.getId());

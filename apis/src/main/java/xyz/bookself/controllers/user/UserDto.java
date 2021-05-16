@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BookIdListIdDTO {
-    private String bookId;
-    private String listId;
+class UserDto {
+    private String username;
+    private String password;
+    private String email;
 }

@@ -2,7 +2,6 @@ package xyz.bookself.users.domain;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.HibernateException;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -16,9 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +24,7 @@ import java.util.Set;
 @Entity
 @TypeDef(
         name = "book_list_type",
-        typeClass = BookListEnumConvert.class
+        typeClass = BookListEnumConverter.class
 )
 @Table(name = "book_lists")
 public class BookList {
