@@ -5,16 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import xyz.bookself.books.domain.Book;
+import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
 import xyz.bookself.users.domain.BookList;
 import xyz.bookself.users.repository.BookListRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -26,11 +24,13 @@ public class BookListController {
 
     private final BookselfApiConfiguration apiConfiguration;
     private final BookListRepository bookListRepository;
+    private final BookRepository bookRepository;
 
     @Autowired
-    public BookListController(BookselfApiConfiguration configuration, BookListRepository repository) {
+    public BookListController(BookselfApiConfiguration configuration, BookListRepository repository, BookRepository bookRepository) {
         this.apiConfiguration = configuration;
         this.bookListRepository = repository;
+        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/{id}")
@@ -45,8 +45,15 @@ public class BookListController {
      * @return list of books in shelf
      */
     @GetMapping("/{id}/books")
-    public ResponseEntity<Collection<String>> getBooks(@PathVariable("id") String bookListId) {
-        final Collection<String>booksInList = bookListRepository.findAllBookIdInList(bookListId, apiConfiguration.getMaxReturnedBooks());
+    public ResponseEntity<Collection<Book>> getBooks(@PathVariable("id") String bookListId) {
+
+        final Collection<String>bookIdsInList = bookListRepository.findAllBookIdInList(bookListId, apiConfiguration.getMaxReturnedBooks());
+        final Collection<Book> booksInList = new ArrayList<>();
+        
+        for(String bookId : bookIdsInList) {
+            booksInList.add(bookRepository.findById(bookId).orElseThrow());
+        }
+        
         return new ResponseEntity<>(booksInList, HttpStatus.OK);
     }
 
