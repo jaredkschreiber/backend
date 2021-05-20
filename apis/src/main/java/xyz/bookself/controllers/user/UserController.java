@@ -25,6 +25,7 @@ import xyz.bookself.users.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.UUID;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @RestController
 @RequestMapping("/v1/users")
@@ -65,7 +66,9 @@ public class UserController {
 
         newUser.setUsername(userDto.getUsername());
         newUser.setEmail(userDto.getEmail());
-        newUser.setPasswordHash(userDto.getPassword());
+        var passwordHasher = new BCryptPasswordEncoder();
+        String hashedPass = passwordHasher.encode(userDto.getPassword());
+        newUser.setPasswordHash(hashedPass);
         newUser.setCreated(LocalDate.now());
         userRepository.save(newUser);
 
