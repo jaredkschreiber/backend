@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.repository.BookRepository;
+import xyz.bookself.controllers.TestUtilities;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

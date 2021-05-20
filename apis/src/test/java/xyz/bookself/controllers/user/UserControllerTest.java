@@ -34,6 +34,7 @@ public class UserControllerTest {
 
     private final String apiPrefix = "/v1/users";
     public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON.getType(), MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -72,10 +73,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
-
     @Test
-    void newUserInputIsGiven_soANewUserIsCreated()
-            throws Exception {
+    void newUserInputIsGiven_soANewUserIsCreated() throws Exception {
 
         final User userExists = new User();
         final String newUserEmail = "newUser@newNew.com";
@@ -92,8 +91,6 @@ public class UserControllerTest {
 
         when(userRepository.save(userExists)).thenReturn(userExists);
 
-
-
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
@@ -102,7 +99,6 @@ public class UserControllerTest {
         mockMvc.perform(post(apiPrefix + "/new-user").contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson))
                 .andExpect(status().isOk());
-
     }
 
     @Test
@@ -121,6 +117,5 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
     }
 }
-
 
 
