@@ -1,11 +1,9 @@
 package xyz.bookself.books.domain;
 
-// a Book with its rank attached
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class BookWithRank {
     public Book book;
     public Double rank;
-
-    public BookWithRank(Book book, Double rank) {
-        this.book = book; this.rank = rank;
-    }
 }
