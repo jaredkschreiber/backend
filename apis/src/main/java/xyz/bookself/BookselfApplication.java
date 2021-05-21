@@ -29,7 +29,7 @@ public class BookselfApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins(corsConfiguration.getAllowedOrigins());
+				registry.addMapping("/**").allowedMethods("*").allowedOrigins(corsConfiguration.getAllowedOrigins());
 			}
 		};
 	}

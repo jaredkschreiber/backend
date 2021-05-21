@@ -10,8 +10,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.domain.BookRank;
-import xyz.bookself.books.domain.BookWithRank;
 import xyz.bookself.books.repository.BookRepository;
+import xyz.bookself.controllers.TestUtilities;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.*;
@@ -88,7 +89,6 @@ class BookControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(TestUtilities.toJsonString(sixtyBooks)));
     }
-
 
     @Test
     void givenThereAreEnoughBooks_whenGetRequestedToBooksSearch_thenNBooksShouldBeReturned() throws Exception {
