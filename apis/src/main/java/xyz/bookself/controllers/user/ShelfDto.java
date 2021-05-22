@@ -9,6 +9,7 @@ import java.util.Set;
 @Setter
 public class ShelfDto {
     private String newListName;
+    private String newBookListId;
     private Set<String> booksToBeAdded;
     private Set<String> booksToBeRemoved;
 }
