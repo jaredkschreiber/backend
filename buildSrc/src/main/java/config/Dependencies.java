@@ -7,6 +7,7 @@ public class Dependencies {
     public static final String springBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator";
     public static final String springBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa";
     public static final String springBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security";
+    public static final String springBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation";
     public static final String springBootStarterJdbc = "org.springframework.boot:spring-boot-starter-jdbc";
     public static final String springBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor";
     public static final String flywayCore = "org.flywaydb:flyway-core";

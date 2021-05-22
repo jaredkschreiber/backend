@@ -1,16 +1,11 @@
 package xyz.bookself.users.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import lombok.Data;
 
 @Data
 @Entity
@@ -27,6 +22,7 @@ public class User {
     @Column(unique=true)
     private String username;
 
+    @JsonIgnore
     @Column(name="password_hash")
     private String passwordHash;
 

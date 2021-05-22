@@ -18,4 +18,5 @@ include 'apis'
 include 'book-service'
 include 'user-service'
 include 'curator-service'
+include 'book-rating-service'
 

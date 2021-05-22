@@ -53,4 +53,6 @@ GET | `/v1/book-lists/{id}` | Get book list by id
 GET | `/v1/book-lists/{id}/books` | Get the books (ids only) in a book list
 PUT | `/v1/book-lists/{id}/update` | Update book list: Rename, add books, remove books
 GET | `/v1/users/{id}/book-lists` | Get book lists of a user
-
+POST | `/v1/books/{bookId}/rating` | Add a new rating to the book (authenticated request)
+PATCH | `/v1/books/{bookId}/rating/{ratingId}` | Update rating (authenticated request)
+DELETE | `/v1/books/{bookId}/rating/{ratingId}` | Update rating (authenticated request)
