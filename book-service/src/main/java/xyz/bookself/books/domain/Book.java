@@ -4,19 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -42,6 +33,10 @@ public class Book {
     private String blurb;
     private int pages;
     private LocalDate published;
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<Rating> ratings;
+    @OneToOne(mappedBy = "book")
+    private AverageRating averageRating;
 
     @Override
     public boolean equals(Object o) {

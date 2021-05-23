@@ -68,6 +68,7 @@ class BookListControllerTest {
 
         final ShelfDto shelfDto = new ShelfDto();
         shelfDto.setNewListName(newListName);
+        shelfDto.setNewBookListId(bookListId);
         final String jsonRequestBody = TestUtilities.toJsonString(shelfDto);
 
         when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(originalBookList));
@@ -106,6 +107,7 @@ class BookListControllerTest {
 
         final ShelfDto shelfDto = new ShelfDto();
         shelfDto.setBooksToBeAdded(booksToBeAdded);
+        shelfDto.setNewBookListId(bookListId);
         final String jsonRequestBody = TestUtilities.toJsonString(shelfDto);
 
         final MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
@@ -123,6 +125,7 @@ class BookListControllerTest {
     @Test
     void givenABookList_whenGetRequestedOnUpdateWithBooksToBeRemoved_thenBooksAreRemovedFromBookList() throws Exception {
         final String bookListId = "existing-book-list";
+
         final Set<String> originalSetOfBooks = new HashSet<>(Arrays.asList("book-id-1", "book-id-2", "book-id-3"));
         final Set<String> booksToBeRemoved = new HashSet<>(Arrays.asList("book-id-2", "book-id-3"));
         final Set<String> updatedSetOfBooks = new HashSet<>(Collections.singletonList("book-id-1"));
@@ -137,7 +140,7 @@ class BookListControllerTest {
 
         final ShelfDto shelfDto = new ShelfDto();
         shelfDto.setBooksToBeRemoved(booksToBeRemoved);
-
+        shelfDto.setNewBookListId(bookListId);
         final String jsonRequestBody = TestUtilities.toJsonString(shelfDto);
 
         when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(originalBookList));

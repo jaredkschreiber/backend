@@ -79,8 +79,11 @@ public class BookListController {
         final String newListName = shelfDto.getNewListName();
         final Set<String> booksToBeAdded = shelfDto.getBooksToBeAdded();
         final Set<String> booksToBeRemoved = shelfDto.getBooksToBeRemoved();
+        final String newBookListId = shelfDto.getNewBookListId();
+
 
         final BookList shelf = bookListRepository.findById(id).orElseThrow();
+        final BookList addShelf = bookListRepository.findById(newBookListId).orElseThrow();
         boolean updated = false;
 
         if(Objects.nonNull(newListName)) {
@@ -89,8 +92,9 @@ public class BookListController {
         }
 
         if(Objects.nonNull(booksToBeAdded) && !booksToBeAdded.isEmpty()) {
-            final Set<String> booksInList = shelf.getBooks();
+            final Set<String> booksInList = addShelf.getBooks();
             booksInList.addAll(booksToBeAdded);
+            bookListRepository.save(addShelf);
             updated = true;
         }
 
@@ -103,4 +107,3 @@ public class BookListController {
         return new ResponseEntity<>((updated) ? bookListRepository.save(shelf) : shelf, HttpStatus.OK);
     }
 }
-

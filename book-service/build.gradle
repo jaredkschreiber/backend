@@ -26,6 +26,8 @@ jar {
 }
 
 dependencies {
+    implementation project(':user-service')
+
     implementation springBootStarter
     implementation springBootStarterWeb
     implementation springBootStarterActuator

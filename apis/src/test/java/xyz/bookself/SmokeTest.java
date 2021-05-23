@@ -5,15 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import xyz.bookself.books.repository.AuthorRepository;
 import xyz.bookself.books.repository.BookRepository;
+import xyz.bookself.books.repository.RatingRepository;
 import xyz.bookself.controllers.book.AuthorController;
-import xyz.bookself.controllers.book.GenreController;
-import xyz.bookself.controllers.health.HealthCheckController;
 import xyz.bookself.controllers.book.BookController;
+import xyz.bookself.controllers.book.GenreController;
+import xyz.bookself.controllers.book.RatingController;
+import xyz.bookself.controllers.health.HealthCheckController;
 import xyz.bookself.controllers.user.BookListController;
 import xyz.bookself.controllers.user.UserController;
 import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +43,9 @@ class SmokeTest {
     private UserController userController;
 
     @Autowired
+    private RatingController ratingController;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -49,6 +53,9 @@ class SmokeTest {
 
     @Autowired
     private BookListRepository bookListRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @Test
     void bookRepositoryLoads() {
@@ -74,6 +81,12 @@ class SmokeTest {
     void userControllerLoads(){
         assertThat(userController).isNotNull();
     }
+
+    @Test
+    void ratingControllerLoads(){
+        assertThat(ratingController).isNotNull();
+    }
+
     @Test
     void userRepositoryLoads() {
         assertThat(userRepository).isNotNull();
@@ -97,6 +110,11 @@ class SmokeTest {
     @Test
     void healthCheckControllerLoads() {
         assertThat(healthCheckController).isNotNull();
+    }
+
+    @Test
+    void ratingRepositoryLoads() {
+        assertThat(ratingRepository).isNotNull();
     }
 
 }

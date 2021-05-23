@@ -26,7 +26,10 @@ jar {
 }
 
 dependencies {
+//    implementation project(':book-service')
+
     implementation springBootStarter
+    implementation springBootStarterWeb
     implementation springBootStarterActuator
     implementation springBootStarterDataJpa
     implementation postgresql
