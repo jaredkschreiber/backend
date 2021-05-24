@@ -62,19 +62,28 @@ public class UserController {
 
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<User>createNewUser(@RequestBody UserDto userDto){
-        User newUser = new User();
 
-        newUser.setUsername(userDto.getUsername());
-        newUser.setEmail(userDto.getEmail());
-        var passwordHasher = new BCryptPasswordEncoder();
-        String hashedPass = passwordHasher.encode(userDto.getPassword());
-        newUser.setPasswordHash(hashedPass);
-        newUser.setCreated(LocalDate.now());
-        userRepository.save(newUser);
+        //check to see if username/email already exists and is non unique.
+        //if it exists, return a 409 error
+        boolean x = userRepository.findUserByUsername(userDto.getUsername()).isPresent();
+        boolean y = userRepository.findUserByEmail(userDto.getEmail()).isPresent();
+        if (!(x || y)) {
+            User newUser = new User();
+            newUser.setUsername(userDto.getUsername());
+            newUser.setEmail(userDto.getEmail());
+            var passwordHasher = new BCryptPasswordEncoder();
+            String hashedPass = passwordHasher.encode(userDto.getPassword());
+            newUser.setPasswordHash(hashedPass);
+            newUser.setCreated(LocalDate.now());
+            userRepository.save(newUser);
+    
+            createNewBookLists(newUser);
+    
+            return new ResponseEntity<>(newUser, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 
-        createNewBookLists(newUser);
-
-        return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 
     /**
