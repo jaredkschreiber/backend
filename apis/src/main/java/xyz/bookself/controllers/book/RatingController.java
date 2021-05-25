@@ -34,7 +34,7 @@ public class RatingController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> saveNewRating(@PathVariable("bookId") String bookId,
+    public ResponseEntity<RatingDTO> saveNewRating(@PathVariable("bookId") String bookId,
                                               @AuthenticationPrincipal BookselfUserDetails userDetails,
                                               @RequestBody @Valid RatingDTO ratingDTO) {
         // Make sure the user is authenticated and known
@@ -45,8 +45,8 @@ public class RatingController {
         var book = bookRepository.findById(bookId).orElseThrow(BadRequestException::new);
 
         var rating = new Rating(book, userDetails.getId(), ratingDTO.getRating(), ratingDTO.getComment());
-        ratingRepository.save(rating);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        ratingDTO = new RatingDTO(ratingRepository.save(rating));
+        return new ResponseEntity<>(ratingDTO, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{ratingId}")

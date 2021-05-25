@@ -15,23 +15,26 @@ import xyz.bookself.books.repository.RatingRepository;
 import xyz.bookself.security.WithBookselfUserDetails;
 import xyz.bookself.users.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class RatingControllerTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String ENDPOINT = RatingController.REQUEST_MAPPING_PATH.replace("{bookId}", "1234");
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
 
     @MockBean
     private RatingRepository ratingRepository;
@@ -42,8 +45,8 @@ class RatingControllerTest {
 
     @Test
     void testAllMethods_Unauthorized() throws Exception {
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
 
         mockMvc.perform(post(ENDPOINT).content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -54,8 +57,8 @@ class RatingControllerTest {
 
     @Test
     void testInsertAndUpdate_BadRequestRatingTooLow() throws Exception {
-        var ratingDTO = new RatingDTO(-1, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(-1, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(post(ENDPOINT).content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(patch(ENDPOINT + "/1234").content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
@@ -64,8 +67,8 @@ class RatingControllerTest {
 
     @Test
     void testInsertAndUpdate_BadRequestRatingTooHigh() throws Exception {
-        var ratingDTO = new RatingDTO(6, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(6, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(post(ENDPOINT).content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(patch(ENDPOINT + "/1234").content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
@@ -77,8 +80,8 @@ class RatingControllerTest {
     void testSaveNewRating_BadRequestBookNotFound() throws Exception {
         when(userRepository.existsById(1)).thenReturn(true);
         when(bookRepository.findById("1234")).thenReturn(Optional.empty());
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, null);
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(post(ENDPOINT).content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -86,15 +89,23 @@ class RatingControllerTest {
     @Test
     @WithBookselfUserDetails(id = 1)
     void testSaveNewRating_Success() throws Exception {
+        // Make sure a book is present and the user exists
         var book = new Book();
         book.setId("1234");
         when(bookRepository.findById("1234")).thenReturn(Optional.of(book));
         when(userRepository.existsById(1)).thenReturn(true);
-        var ratingDTO = new RatingDTO(3, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+
+        // Create a rating object that was successfully created
+        var rating = new Rating(book, 1, 3, null);
+        rating.setId(1);
+        rating.setCreatedTime(LocalDateTime.now());
+        when(ratingRepository.save(any())).thenReturn(rating);
+
+        // Send off the request and make sure we get back the successfully created DTO
+        var ratingDTOJson = objectMapper.writeValueAsString(new RatingDTO(3, null, null));
         mockMvc.perform(post(ENDPOINT).content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-        verify(ratingRepository).save(any());
+                .andExpect(status().isCreated())
+                .andExpect(content().json(objectMapper.writeValueAsString(new RatingDTO(rating))));
     }
 
     @Test
@@ -102,8 +113,8 @@ class RatingControllerTest {
     void testUpdateRating_BadRequestBookNotFound() throws Exception {
         when(userRepository.existsById(1)).thenReturn(true);
         when(bookRepository.existsById("1234")).thenReturn(false);
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(patch(ENDPOINT + "/1234").content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -117,8 +128,8 @@ class RatingControllerTest {
         rating.setId(1234);
         rating.setUserId(2); // Different than authenticated user
         when(ratingRepository.findById(1234)).thenReturn(Optional.of(rating));
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(patch(ENDPOINT + "/1234").content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -132,8 +143,8 @@ class RatingControllerTest {
         rating.setId(1234);
         rating.setUserId(1);
         when(ratingRepository.findById(1234)).thenReturn(Optional.of(rating));
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(patch(ENDPOINT + "/1234").content(ratingDTOJson).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         verify(ratingRepository).save(any());
@@ -156,8 +167,8 @@ class RatingControllerTest {
         rating.setId(1234);
         rating.setUserId(2); // Different than authenticated user
         when(ratingRepository.findById(1234)).thenReturn(Optional.of(rating));
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(delete(ENDPOINT + "/1234")).andExpect(status().isForbidden());
     }
 
@@ -170,8 +181,8 @@ class RatingControllerTest {
         rating.setId(1234);
         rating.setUserId(1);
         when(ratingRepository.findById(1234)).thenReturn(Optional.of(rating));
-        var ratingDTO = new RatingDTO(5, null);
-        var ratingDTOJson = MAPPER.writeValueAsString(ratingDTO);
+        var ratingDTO = new RatingDTO(5, null, LocalDateTime.now());
+        var ratingDTOJson = objectMapper.writeValueAsString(ratingDTO);
         mockMvc.perform(delete(ENDPOINT + "/1234")).andExpect(status().isOk());
     }
 
