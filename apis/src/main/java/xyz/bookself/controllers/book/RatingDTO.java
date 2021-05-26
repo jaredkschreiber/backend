@@ -7,7 +7,6 @@ import xyz.bookself.books.domain.Rating;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
 
 @Getter
 public class RatingDTO {
@@ -17,22 +16,16 @@ public class RatingDTO {
     private final int rating;
     @JsonProperty("comment")
     private final String comment;
-    @JsonProperty("createdTime")
-    private final LocalDateTime createdTime;
 
     @JsonCreator
     public RatingDTO(@JsonProperty("rating") int rating,
-                     @JsonProperty("comment") String comment,
-                     @JsonProperty("createdTime") LocalDateTime createdTime) {
+                     @JsonProperty("comment") String comment) {
         this.rating = rating;
         this.comment = comment;
-        this.createdTime = createdTime;
     }
 
     public RatingDTO(Rating rating) {
         this.rating = rating.getRating();
         this.comment = rating.getComment();
-        this.createdTime = rating.getCreatedTime();
     }
-
 }

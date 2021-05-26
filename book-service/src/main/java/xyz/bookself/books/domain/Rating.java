@@ -1,6 +1,7 @@
 package xyz.bookself.books.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -27,12 +28,15 @@ public class Rating {
     private Integer userId;
 
     @Column(nullable = false)
+    @JsonView(RatingDTOViews.Rating_Comment_CreatedTimeView.class)
     private Integer rating;
 
     @Column
+    @JsonView(RatingDTOViews.Rating_Comment_CreatedTimeView.class)
     private String comment;
 
     @Column(name = "created_time")
+    @JsonView(RatingDTOViews.Rating_Comment_CreatedTimeView.class)
     private LocalDateTime createdTime;
 
     /**
@@ -45,5 +49,6 @@ public class Rating {
         this.userId = userId;
         this.rating = rating;
         this.comment = comment;
+        this.createdTime = LocalDateTime.now(); // TODO Christian: verify this works
     }
 }
