@@ -102,18 +102,21 @@ public class UserController {
         newDNF.setId(createUUID());
         newDNF.setListType(BookListEnum.DNF);
         newDNF.setUserId(newUser.getId());
+        newDNF.setBookListName("Did Not Finish");
         bookListRepository.save(newDNF);
 
         final BookList read = new BookList();
         read.setId(createUUID());
         read.setListType(BookListEnum.READ);
         read.setUserId(newUser.getId());
+        read.setBookListName("Read");
         bookListRepository.save(read);
 
         final BookList current = new BookList();
         current.setId(createUUID());
         current.setListType(BookListEnum.READING);
         current.setUserId(newUser.getId());
+        current.setBookListName("Currently Reading");
         bookListRepository.save(current);
     }
 

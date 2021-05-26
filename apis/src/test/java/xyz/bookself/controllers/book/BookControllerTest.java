@@ -64,7 +64,7 @@ class BookControllerTest {
                     b.setAuthors(new HashSet<>(Collections.singletonList(author)));
                     return b;
                 }).collect(Collectors.toSet());
-        final String jsonContent = TestUtilities.toJsonString(books);
+        final String jsonContent = TestUtilities.toJsonString(books.stream().map(BookDTO::new).collect(Collectors.toSet()));
 
         when(bookRepository.findAllByAuthor(validAuthorId, maxReturnedBooks)).thenReturn(books);
 
@@ -82,12 +82,13 @@ class BookControllerTest {
             b.setId("_" + i);
             return b;
         }).collect(Collectors.toSet());
+        final String jsonContent = TestUtilities.toJsonString(sixtyBooks.stream().map(BookDTO::new).collect(Collectors.toSet()));
 
         when(bookRepository.findAnyBooks(maxReturnedBooks)).thenReturn(sixtyBooks);
 
         mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(sixtyBooks)));
+                .andExpect(content().json(jsonContent));
     }
 
     @Test
