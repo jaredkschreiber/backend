@@ -1,11 +1,14 @@
 package xyz.bookself.controllers.book;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.domain.Rating;
+import xyz.bookself.books.domain.RatingDTOViews;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.books.repository.RatingRepository;
 import xyz.bookself.exceptions.BadRequestException;
@@ -16,6 +19,7 @@ import xyz.bookself.security.BookselfUserDetails;
 import xyz.bookself.users.repository.UserRepository;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping(RatingController.REQUEST_MAPPING_PATH)
@@ -33,51 +37,105 @@ public class RatingController {
         this.bookRepository = bookRepository;
     }
 
-    @PostMapping
-    public ResponseEntity<RatingDTO> saveNewRating(@PathVariable("bookId") String bookId,
-                                              @AuthenticationPrincipal BookselfUserDetails userDetails,
-                                              @RequestBody @Valid RatingDTO ratingDTO) {
+
+    @JsonView(RatingDTOViews.Rating_Comment_CreatedTimeView.class)
+    @GetMapping
+    public Rating getRating(@PathVariable("bookId") String bookId,
+                            @AuthenticationPrincipal BookselfUserDetails userDetails
+    ) {
         // Make sure the user is authenticated and known
         if (userDetails == null || !userRepository.existsById(userDetails.getId())) {
             throw new UnauthorizedException();
         }
+
+        // Make sure it's a known book
+        var book = bookRepository.findById(bookId).orElseThrow(BadRequestException::new);
+
+        // have they reviewed this book before?
+        return ratingRepository.findRatingByUserForBook(userDetails.getId(), bookId).orElseThrow(NotFoundException::new);
+    }
+
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @JsonView(RatingDTOViews.Rating_Comment_CreatedTimeView.class)
+    @PostMapping
+    public Rating saveNewRating(@PathVariable("bookId") String bookId,
+                                @AuthenticationPrincipal BookselfUserDetails userDetails,
+                                @RequestBody @Valid RatingDTO ratingDTO) {
+        // Make sure the user is authenticated and known
+        if (userDetails == null || !userRepository.existsById(userDetails.getId())) {
+            throw new UnauthorizedException();
+        }
+
         // Make sure we're adding a rating to a known book
         var book = bookRepository.findById(bookId).orElseThrow(BadRequestException::new);
 
+        // TODO make sure the user didn't already rate this book
+
         var rating = new Rating(book, userDetails.getId(), ratingDTO.getRating(), ratingDTO.getComment());
-        ratingDTO = new RatingDTO(ratingRepository.save(rating));
-        return new ResponseEntity<>(ratingDTO, HttpStatus.CREATED);
+        return ratingRepository.save(rating);
     }
 
-    @PatchMapping("/{ratingId}")
+
+    @PatchMapping(consumes = "application/json") // TODO: think consumes is unnecessary, was added while debugging
     public ResponseEntity<Void> updateRating(@PathVariable("bookId") String bookId,
                                              @AuthenticationPrincipal BookselfUserDetails userDetails,
-                                             @PathVariable("ratingId") Integer ratingId,
-                                             @RequestBody @Valid RatingDTO ratingDTO) {
+                                             @RequestBody Map<String, Object> json) {
         // Make sure the user is authenticated and known
         if (userDetails == null || !userRepository.existsById(userDetails.getId())) {
             throw new UnauthorizedException();
         }
+
         // Really no need for this since if a book is removed the related ratings are cascade deleted... but doesn't hurt!
         if (!bookRepository.existsById(bookId)) {
             throw new NotFoundException();
         }
-        // Find the rating and verify the authenticated user owns it
-        var rating = ratingRepository.findById(ratingId).orElseThrow(NotFoundException::new);
+
+        var rating = ratingRepository.findRatingByUserForBook(userDetails.getId(), bookId).orElseThrow(NotFoundException::new);
         if (!userDetails.getId().equals(rating.getUserId())) {
             throw new ForbiddenException();
         }
 
-        rating.setRating(ratingDTO.getRating());
-        rating.setComment(ratingDTO.getComment());
+        // should only be able to PATCH:
+        //  Integer rating
+        //  String comment
+
+        // probably a better way to do this...
+        if (json.containsKey("rating")) {
+            if (!(json.get("rating") instanceof Integer)) {
+                throw new BadRequestException();
+            }
+
+            Integer ratingFromBody = (Integer) json.get("rating");
+            if (ratingFromBody <= 0 || ratingFromBody > 5) {
+                throw new BadRequestException();
+            }
+
+            rating.setRating(ratingFromBody);
+        }
+
+        if (json.containsKey("comment")) { // not else if for a reason
+            if (json.get("comment") == null) { // null is actually valid for a comment
+                rating.setComment(null);
+            }
+            else {
+                if (!(json.get("comment") instanceof String)) {
+                    throw new BadRequestException();
+                }
+
+                String commentFromBody = (String) json.get("comment");
+                rating.setComment(commentFromBody);
+            }
+        }
+
         ratingRepository.save(rating);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{ratingId}")
+
+    @DeleteMapping
     public ResponseEntity<Void> deleteRating(@PathVariable("bookId") String bookId,
-                                             @AuthenticationPrincipal BookselfUserDetails userDetails,
-                                             @PathVariable("ratingId") Integer ratingId) {
+                                             @AuthenticationPrincipal BookselfUserDetails userDetails) {
         // Make sure the user is authenticated and known
         if (userDetails == null || !userRepository.existsById(userDetails.getId())) {
             throw new UnauthorizedException();
@@ -86,8 +144,9 @@ public class RatingController {
         if (!bookRepository.existsById(bookId)) {
             throw new NotFoundException();
         }
-        // Find the rating and verify the authenticated user owns it
-        var rating = ratingRepository.findById(ratingId).orElseThrow(NotFoundException::new);
+
+        // Find the rating
+        var rating = ratingRepository.findRatingByUserForBook(userDetails.getId(), bookId).orElseThrow(NotFoundException::new);
         if (!userDetails.getId().equals(rating.getUserId())) {
             throw new ForbiddenException();
         }
@@ -95,5 +154,4 @@ public class RatingController {
         ratingRepository.delete(rating);
         return ResponseEntity.ok().build();
     }
-
 }
