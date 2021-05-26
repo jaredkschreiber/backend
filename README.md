@@ -42,6 +42,9 @@ __OR, while in the same directory as the executable JAR,__
 Method | Endpoint | Description
 ------ | -------- | -----------
 GET | `/ping` | Health Check endpoint
+POST | `/v1/auth/signin` | Sign in
+GET | `/v1/auth/signout` | Sign out
+GET | `/ping` | Health Check endpoint
 GET | `/v1/books/{id}` | Get a book by id
 GET | `/v1/books/any` | Get random books (the number of books returned is configurable)
 GET | `/v1/books/by-author?authorId=1234` | Get book whose author has an id of `1234`
@@ -56,3 +59,5 @@ GET | `/v1/users/{id}/book-lists` | Get book lists of a user
 POST | `/v1/books/{bookId}/rating` | Add a new rating to the book (authenticated request)
 PATCH | `/v1/books/{bookId}/rating/{ratingId}` | Update rating (authenticated request)
 DELETE | `/v1/books/{bookId}/rating/{ratingId}` | Update rating (authenticated request)
+GET | `/v1/users/{id}` | Get user by id
+POST | `/v1/users/new-user` | Add a new user
