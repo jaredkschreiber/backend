@@ -1,5 +1,5 @@
-import static config.Project.*;
-import static config.Dependencies.*;
+import static config.Project.*
+import static config.Dependencies.*
 
 plugins {
     id 'org.springframework.boot'
@@ -26,8 +26,6 @@ jar {
 }
 
 dependencies {
-    implementation project(':user-service')
-
     implementation springBootStarter
     implementation springBootStarterWeb
     implementation springBootStarterActuator

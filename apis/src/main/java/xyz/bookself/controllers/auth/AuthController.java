@@ -34,6 +34,8 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        log.info(userDetails.getUsername(), userDetails.getPassword());
+
         return userRepository.findById(userDetails.getId())
                 .map(u -> new ResponseEntity<>(u, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));

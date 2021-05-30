@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/books")
+@RequestMapping(BookController.BOOKS_ENDPOINT)
 @Slf4j
 public class BookController {
+
+    public static final String BOOKS_ENDPOINT = "/v1/books";
 
     private final BookselfApiConfiguration apiConfiguration;
     private final BookRepository bookRepository;
