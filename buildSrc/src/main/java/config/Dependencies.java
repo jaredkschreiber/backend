@@ -9,7 +9,8 @@ public class Dependencies {
     public static final String springBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security";
     public static final String springBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation";
     public static final String springBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor";
-    public static final String micrometerCloudWatch = "io.micrometer:micrometer-registry-cloudwatch2:latest.release";
+    public static final String springCloudAWSAutoconfigure = "org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.6.RELEASE";
+    public static final String micrometerCloudWatch = "io.micrometer:micrometer-registry-cloudwatch2";
     public static final String flywayCore = "org.flywaydb:flyway-core";
     public static final String postgresql = "org.postgresql:postgresql";
     public static final String springBootStarterTest = "org.springframework.boot:spring-boot-starter-test";

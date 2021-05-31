@@ -27,6 +27,7 @@ dependencies {
 	implementation springBootStarterDataJpa
 	implementation springBootStarterSecurity
 	implementation springBootStarterValidation
+	implementation springCloudAWSAutoconfigure
 	implementation micrometerCloudWatch
 	implementation flywayCore
 	implementation postgresql
