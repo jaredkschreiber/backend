@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.book;
 
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/v1/genres")
+@Timed
 public class GenreController {
 
     private final BookselfApiConfiguration apiConfiguration;

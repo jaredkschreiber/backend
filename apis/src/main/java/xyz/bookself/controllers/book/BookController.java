@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.book;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(BookController.BOOKS_ENDPOINT)
 @Slf4j
+@Timed
 public class BookController {
 
     public static final String BOOKS_ENDPOINT = "/v1/books";

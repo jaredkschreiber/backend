@@ -1,6 +1,7 @@
 package xyz.bookself.controllers.book;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(RatingController.REQUEST_MAPPING_PATH)
 @Slf4j
+@Timed
 public class RatingController {
     public static final String REQUEST_MAPPING_PATH = "/v1/books/{bookId}/rating";
 

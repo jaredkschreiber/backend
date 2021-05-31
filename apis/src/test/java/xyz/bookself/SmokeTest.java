@@ -10,7 +10,6 @@ import xyz.bookself.controllers.book.AuthorController;
 import xyz.bookself.controllers.book.BookController;
 import xyz.bookself.controllers.book.GenreController;
 import xyz.bookself.controllers.book.RatingController;
-import xyz.bookself.controllers.health.HealthCheckController;
 import xyz.bookself.controllers.user.BookListController;
 import xyz.bookself.controllers.user.UserController;
 import xyz.bookself.users.repository.BookListRepository;
@@ -35,9 +34,6 @@ class SmokeTest {
 
     @Autowired
     private GenreController genreController;
-
-    @Autowired
-    private HealthCheckController healthCheckController;
 
     @Autowired
     private UserController userController;
@@ -105,11 +101,6 @@ class SmokeTest {
     @Test
     void genreControllerLoads() {
         assertThat(genreController).isNotNull();
-    }
-
-    @Test
-    void healthCheckControllerLoads() {
-        assertThat(healthCheckController).isNotNull();
     }
 
     @Test

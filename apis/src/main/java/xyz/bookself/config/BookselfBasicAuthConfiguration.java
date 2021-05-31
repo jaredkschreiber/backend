@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Sets up the API to require auth on all endpoints but /ping (can't do auth here due to load balancer health checking)
+ * Sets up Security. Default is unauthenticated which is overridden at the Controller level as needed.
  *
  * Uses the {@link xyz.bookself.security.BookselfUserDetailsService} to check the database for a user and
  * {@link BCryptPasswordEncoder} to deal with comparing the plain text password to the hash we have in the DB.
