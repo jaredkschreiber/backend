@@ -14,21 +14,20 @@ public class BookselfUserDetails implements UserDetails {
 
     private final Integer id;
     private final String username;
-    private final String passwordHash;
+    private final String password;
     private final Set<GrantedAuthority> grantedAuthority;
 
     public BookselfUserDetails(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
-        this.passwordHash = user.getPasswordHash();
-        // Random crap here... can tweak later
+        this.password = user.getPasswordHash();
         this.grantedAuthority = Set.of((GrantedAuthority) () -> "ALL_THE_AUTHORITY");
     }
 
     public BookselfUserDetails(Integer id) {
         this.id = id;
         this.username = null;
-        this.passwordHash = null;
+        this.password = null;
         this.grantedAuthority = Set.of((GrantedAuthority) () -> "ALL_THE_AUTHORITY");
     }
 
@@ -43,7 +42,7 @@ public class BookselfUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return passwordHash;
+        return password;
     }
 
     @Override

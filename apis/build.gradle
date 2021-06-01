@@ -1,5 +1,5 @@
-import static config.Project.*;
-import static config.Dependencies.*;
+import static config.Project.*
+import static config.Dependencies.*
 
 plugins {
 	id 'org.springframework.boot'
@@ -27,6 +27,8 @@ dependencies {
 	implementation springBootStarterDataJpa
 	implementation springBootStarterSecurity
 	implementation springBootStarterValidation
+	implementation awsJavaSDKCore
+	implementation micrometerCloudWatch
 	implementation flywayCore
 	implementation postgresql
 
@@ -49,6 +51,12 @@ jacocoTestReport {
 
 // Setup Jacoco to fail the build if code coverage is under 80%
 jacocoTestCoverageVerification {
+	afterEvaluate {
+		classDirectories.setFrom(
+				fileTree(dir: "build/classes/java/main")
+						.filter({file -> !file.path.contains('/config/')})
+		)
+	}
 	violationRules {
 		rule {
 			limit {

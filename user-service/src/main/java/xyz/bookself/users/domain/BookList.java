@@ -35,7 +35,7 @@ public class BookList {
     @Enumerated(EnumType.STRING)
     @Type( type = "book_list_type" )
     private BookListEnum listType;
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "books_in_list", joinColumns = @JoinColumn(name = "list_id"))
     @Column(name = "book_in_list")
     private Set<String> books= new HashSet<>();

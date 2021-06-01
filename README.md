@@ -41,10 +41,8 @@ __OR, while in the same directory as the executable JAR,__
 
 Method | Endpoint | Description
 ------ | -------- | -----------
-GET | `/ping` | Health Check endpoint
 POST | `/v1/auth/signin` | Sign in
 GET | `/v1/auth/signout` | Sign out
-GET | `/ping` | Health Check endpoint
 GET | `/v1/books/{id}` | Get a book by id
 GET | `/v1/books/any` | Get random books (the number of books returned is configurable)
 GET | `/v1/books/by-author?authorId=1234` | Get book whose author has an id of `1234`

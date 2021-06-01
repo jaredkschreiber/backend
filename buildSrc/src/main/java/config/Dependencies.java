@@ -8,8 +8,9 @@ public class Dependencies {
     public static final String springBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa";
     public static final String springBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security";
     public static final String springBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation";
-    public static final String springBootStarterJdbc = "org.springframework.boot:spring-boot-starter-jdbc";
     public static final String springBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor";
+    public static final String awsJavaSDKCore = "com.amazonaws:aws-java-sdk-core:1.11.1030";
+    public static final String micrometerCloudWatch = "io.micrometer:micrometer-registry-cloudwatch2";
     public static final String flywayCore = "org.flywaydb:flyway-core";
     public static final String postgresql = "org.postgresql:postgresql";
     public static final String springBootStarterTest = "org.springframework.boot:spring-boot-starter-test";

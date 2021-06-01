@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.auth;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import xyz.bookself.users.repository.UserRepository;
 @RestController
 @RequestMapping("/v1/auth")
 @Slf4j
+@Timed
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -33,6 +35,8 @@ public class AuthController {
         if (userDetails == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
+        log.info(userDetails.getUsername(), userDetails.getPassword());
 
         return userRepository.findById(userDetails.getId())
                 .map(u -> new ResponseEntity<>(u, HttpStatus.OK))
