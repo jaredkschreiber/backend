@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import xyz.bookself.config.BookselfCorsConfiguration;
@@ -12,6 +13,7 @@ import xyz.bookself.config.BookselfCorsConfiguration;
 import java.util.TimeZone;
 
 @SpringBootApplication
+@EnableScheduling
 @ConfigurationPropertiesScan({ "xyz.bookself.config" })
 @Slf4j
 public class BookselfApplication {
