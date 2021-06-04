@@ -59,9 +59,6 @@ class RatingControllerTest {
         mockMvc.perform(delete(ENDPOINT)).andExpect(status().isUnauthorized());
     }
 
-    // TODO: Christian - The validation USED to occur as part of the method call
-    //  but now I'm doing it manually inside the body (so the order of what gets thrown changed, making these tests fail)
-    //  you shouldn't validate a PATCH request body like you would a PUT, since it might not contain all the fields
     @Test
     @WithBookselfUserDetails(id = authenticatedUserId)
     void testInsertAndUpdate_BadRequestRatingTooLow() throws Exception {

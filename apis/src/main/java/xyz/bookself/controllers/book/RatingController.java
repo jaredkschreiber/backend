@@ -158,5 +158,4 @@ public class RatingController {
             throw new UnauthorizedException();
         }
     }
-
 }
