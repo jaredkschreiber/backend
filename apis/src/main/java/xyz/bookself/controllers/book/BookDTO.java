@@ -2,9 +2,13 @@ package xyz.bookself.controllers.book;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import xyz.bookself.books.domain.AverageRating;
 import xyz.bookself.books.domain.Book;
+import xyz.bookself.books.domain.Rating;
+import xyz.bookself.books.domain.RatingDTOViews;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -31,7 +35,7 @@ public class BookDTO {
     @JsonProperty("published")
     private final LocalDate datePublished;
     @JsonProperty("ratings")
-    private final Set<RatingDTO> ratings;
+    private final Set<Rating> ratings;
     @JsonProperty("averageRating")
     private final Double averageRating;
 
@@ -43,7 +47,7 @@ public class BookDTO {
                    @JsonProperty("blurb") String blurb,
                    @JsonProperty("pages") int pages,
                    @JsonProperty("published") LocalDate datePublished,
-                   @JsonProperty("ratings") Set<RatingDTO> ratings,
+                   @JsonProperty("ratings") Set<Rating> ratings,
                    @JsonProperty("averageRating") Double averageRating) {
         this.id = id;
         this.title = title;
@@ -64,7 +68,7 @@ public class BookDTO {
         this.blurb = book.getBlurb();
         this.pages = book.getPages();
         this.datePublished = book.getPublished();
-        this.ratings = book.getRatings() == null ? emptySet() : book.getRatings().stream().map(RatingDTO::new).collect(Collectors.toSet());
+        this.ratings = book.getRatings() == null ? emptySet() : book.getRatings().stream().collect(Collectors.toSet());
         this.averageRating = Optional.of(book).map(Book::getAverageRating).map(AverageRating::getAverageRating).orElse(null); // Mapping so we can flatten, still a null if not found
     }
 

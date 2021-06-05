@@ -28,6 +28,12 @@ public class AuthorController {
         this.authorRepository = repository;
     }
 
+    @GetMapping("")
+    public ResponseEntity<Collection<Author>> getAnyAuthors() {
+        final Collection<Author> authors = authorRepository.findAnyAuthors(apiConfiguration.getMaxReturnedAuthors());
+        return new ResponseEntity<>(authors, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Author> getAuthorById(@PathVariable String id) {
         final Author author = authorRepository.findById(id).orElseThrow();

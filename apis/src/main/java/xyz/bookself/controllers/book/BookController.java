@@ -9,9 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import xyz.bookself.books.domain.BookRank;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
+import xyz.bookself.services.BookService;
+import xyz.bookself.services.PopularityService;
 
+import javax.xml.transform.OutputKeys;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,11 +30,38 @@ public class BookController {
 
     private final BookselfApiConfiguration apiConfiguration;
     private final BookRepository bookRepository;
+    private final BookService bookService;
+    private final PopularityService popularityService;
 
     @Autowired
-    public BookController(BookselfApiConfiguration configuration, BookRepository repository) {
+    public BookController(BookselfApiConfiguration configuration,
+                          BookRepository repository,
+                          BookService bookService,
+                          PopularityService popularityService) {
         this.apiConfiguration = configuration;
         this.bookRepository = repository;
+        this.bookService = bookService;
+        this.popularityService = popularityService;
+    }
+
+    @GetMapping("")
+    public ResponseEntity<Collection<BookDTO>> getBooks(@RequestParam Map<String, String> params) {
+        final String popular = params.get("popular");
+        final String genre = params.get("genre");
+        final String authorId = params.get("authorId");
+        if("yes".equalsIgnoreCase(popular)) {
+            if(Objects.nonNull(genre)) {
+                return new ResponseEntity<>(popularityService.findPopularBooksByGenre(genre), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(popularityService.findPopularBooks(), HttpStatus.OK);
+        }
+        if(Objects.nonNull(genre)) {
+            return new ResponseEntity<>(bookService.findBooksByGenre(genre), HttpStatus.OK);
+        }
+        if(Objects.nonNull(authorId)) {
+            return new ResponseEntity<>(bookService.findBooksByAuthor(authorId), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(bookService.findAnyBooks(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -39,23 +72,17 @@ public class BookController {
 
     @GetMapping("/by-author")
     public ResponseEntity<Collection<BookDTO>> getBooksByAuthor(@RequestParam String authorId) {
-        final var books = bookRepository.findAllByAuthor(authorId, apiConfiguration.getMaxReturnedBooks())
-                .stream().map(BookDTO::new).collect(Collectors.toSet());
-        return new ResponseEntity<>(books, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findBooksByAuthor(authorId), HttpStatus.OK);
     }
 
     @GetMapping("/by-genre")
     public ResponseEntity<Collection<BookDTO>> getBooksByGenre(@RequestParam String genre) {
-        final var books = bookRepository.findAllByGenre(genre, apiConfiguration.getMaxReturnedBooks())
-                .stream().map(BookDTO::new).collect(Collectors.toSet());
-        return new ResponseEntity<>(books, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.findBooksByGenre(genre), HttpStatus.OK);
     }
 
     @GetMapping("/any")
-    public ResponseEntity<Collection<BookDTO>> getBooks() {
-        final var books = bookRepository.findAnyBooks(apiConfiguration.getMaxReturnedBooks())
-                .stream().map(BookDTO::new).collect(Collectors.toSet());
-        return new ResponseEntity<>(books, HttpStatus.OK);
+    public ResponseEntity<Collection<BookDTO>> getAnyBooks() {
+        return new ResponseEntity<>(bookService.findAnyBooks(), HttpStatus.OK);
     }
 
     @GetMapping("/search")

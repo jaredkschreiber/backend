@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.book;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +12,16 @@ import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.domain.BookRank;
 import xyz.bookself.books.repository.BookRepository;
-import xyz.bookself.controllers.TestUtilities;
+import xyz.bookself.services.BookService;
+import xyz.bookself.services.PopularityService;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-
-import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,8 +42,20 @@ class BookControllerTest {
     @MockBean
     private BookRepository bookRepository;
 
+    @MockBean
+    private BookService bookService;
+
+    @MockBean
+    private PopularityService popularityService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Value("${bookself.api.max-returned-books}")
     private int maxReturnedBooks;
+
+    @Value("${bookself.api.max-popular-books-by-genre-count}")
+    private int maxPopularBooksByGenreCount;
 
     @Test
     void givenBookExists_whenIdIsSuppliedToBookEndpoint_thenBookIsReturned()
@@ -51,22 +69,70 @@ class BookControllerTest {
     }
 
     @Test
+    void givenAuthorId_whenGetRequestedOnBooksEndpoint_thenAllBooksWrittenByAuthorAreReturned()
+            throws Exception {
+
+        final String validAuthorId = "12345";
+        final Author author = new Author();
+        author.setId(validAuthorId);
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxReturnedBooks)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    b.setAuthors(new HashSet<>(Collections.singletonList(author)));
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        final String jsonContent = objectMapper.writeValueAsString(books);
+
+        when(bookService.findBooksByAuthor(validAuthorId)).thenReturn(books);
+
+        mockMvc.perform(get(apiPrefix + "?authorId=" + validAuthorId))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonContent));
+    }
+
+    @Test
+    void givenGenre_whenGetRequestedOnPopularBooks_thenBooksFromThatGenreAreReturned()
+    throws Exception {
+        final String genre = "Some+Genre";
+        final String ENDPOINT = apiPrefix + "?popular=yes&genre=" + genre;
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxPopularBooksByGenreCount)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    b.setGenres(Set.of(genre));
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        final String jsonContent = objectMapper.writeValueAsString(books);
+        when(popularityService.findPopularBooksByGenre(genre)).thenReturn(books);
+        mockMvc.perform(get(ENDPOINT))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonContent));
+    }
+
+    @Test
     void givenAuthorId_whenGetRequestedOnBookList_thenAllBooksWrittenByAuthorAreReturned()
             throws Exception {
 
         final String validAuthorId = "12345";
         final Author author = new Author();
         author.setId(validAuthorId);
-        final Set<Book> books = IntStream.range(100, 110)
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxReturnedBooks)
                 .mapToObj(i -> {
                     final Book b = new Book();
                     b.setId(Integer.toHexString(i));
                     b.setAuthors(new HashSet<>(Collections.singletonList(author)));
                     return b;
-                }).collect(Collectors.toSet());
-        final String jsonContent = TestUtilities.toJsonString(books.stream().map(BookDTO::new).collect(Collectors.toSet()));
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        final String jsonContent = objectMapper.writeValueAsString(books);
 
-        when(bookRepository.findAllByAuthor(validAuthorId, maxReturnedBooks)).thenReturn(books);
+        when(bookService.findBooksByAuthor(validAuthorId)).thenReturn(books);
 
         mockMvc.perform(get(apiPrefix + "/by-author?authorId=" + validAuthorId))
                 .andExpect(status().isOk())
@@ -77,14 +143,17 @@ class BookControllerTest {
     void givenThereAreEnoughBooks_whenGetRequestedToBooksAll_thenNBooksShouldBeReturned()
             throws Exception {
 
-        final Collection<Book> sixtyBooks = IntStream.range(0, maxReturnedBooks).mapToObj(i -> {
-            Book b = new Book();
-            b.setId("_" + i);
-            return b;
-        }).collect(Collectors.toSet());
-        final String jsonContent = TestUtilities.toJsonString(sixtyBooks.stream().map(BookDTO::new).collect(Collectors.toSet()));
+        final Collection<BookDTO> sixtyBooks = IntStream.rangeClosed(1, maxReturnedBooks)
+                .mapToObj(i -> {
+                    Book b = new Book();
+                    b.setId("_" + i);
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        final String jsonContent = objectMapper.writeValueAsString(sixtyBooks);
 
-        when(bookRepository.findAnyBooks(maxReturnedBooks)).thenReturn(sixtyBooks);
+        when(bookService.findAnyBooks()).thenReturn(sixtyBooks);
 
         mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())

@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.book;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.domain.Author;
 import xyz.bookself.books.repository.AuthorRepository;
-import xyz.bookself.controllers.TestUtilities;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -30,6 +30,9 @@ class AuthorControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private AuthorRepository authorRepository;
 
@@ -44,7 +47,7 @@ class AuthorControllerTest {
         final String existingAuthorId = "12345";
         final Author author = new Author();
         author.setId(existingAuthorId);
-        final String jsonContent = TestUtilities.toJsonString(author);
+        final String jsonContent = objectMapper.writeValueAsString(author);
 
         when(authorRepository.findById(existingAuthorId)).thenReturn(Optional.of(author));
 
@@ -68,6 +71,6 @@ class AuthorControllerTest {
 
         mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(authors)));
+                .andExpect(content().json(objectMapper.writeValueAsString(authors)));
     }
 }

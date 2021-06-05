@@ -45,19 +45,6 @@ public class UserControllerTest {
     private BookListRepository bookListRepository;
 
     @Test
-    void testGetUser_Unauthorized() throws Exception {
-        mockMvc.perform(get(apiPrefix + "/" + 1))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithBookselfUserDetails(id = 1)
-    void testGetUser_Forbidden() throws Exception {
-        mockMvc.perform(get(apiPrefix + "/" + 2))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     @WithBookselfUserDetails(id = 1)
     void testGetUser_OK()
             throws Exception {
@@ -115,6 +102,15 @@ public class UserControllerTest {
 
         mockMvc.perform(get(apiPrefix + "/" + givenUserId + "/book-lists"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void getUser_NotFound() throws Exception {
+        Integer givenUserId = 1;
+        when(userRepository.findById(givenUserId)).thenReturn(Optional.ofNullable(null));
+
+        mockMvc.perform(get(apiPrefix + "/" + givenUserId))
+            .andExpect(status().isNotFound());
     }
 }
 
