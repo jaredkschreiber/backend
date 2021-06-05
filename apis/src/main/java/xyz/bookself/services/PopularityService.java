@@ -11,6 +11,8 @@ import xyz.bookself.books.repository.GenrePopularityRepository;
 import xyz.bookself.books.repository.PopularityRepository;
 import xyz.bookself.books.repository.RatingRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
+import xyz.bookself.controllers.book.BookDTO;
+import xyz.bookself.controllers.book.PopularityDTO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,6 +113,24 @@ public class PopularityService {
             }))
         );
         log.info("Done persisting genre popularity ranks...");
+    }
+
+    public Collection<BookDTO> findPopularBooks() {
+        return popularityRepository
+                .getPopularBooks(apiConfiguration.getMaxPopularBooksCount())
+                .stream()
+                .map(Popularity::getBook)
+                .map(BookDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<BookDTO> findPopularBooksByGenre(String genre) {
+        return genrePopularityRepository
+                .getPopularBooksByGenre(genre, apiConfiguration.getMaxPopularBooksByGenreCount())
+                .stream()
+                .map(GenrePopularity::getBook)
+                .map(BookDTO::new)
+                .collect(Collectors.toList());
     }
 
     private Map<Book, Set<Rating>> getRatingsGroupedByBook() {

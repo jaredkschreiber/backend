@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import xyz.bookself.controllers.TestUtilities;
 import xyz.bookself.users.domain.BookList;
 import xyz.bookself.users.repository.BookListRepository;
 
@@ -34,6 +34,9 @@ class BookListControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private BookListRepository bookListRepository;
@@ -69,7 +72,7 @@ class BookListControllerTest {
         final ShelfNameDTO shelfNameDTO = new ShelfNameDTO();
         shelfNameDTO.setNewListName(newBookListName);
 
-        final String jsonRequestBody = TestUtilities.toJsonString(shelfNameDTO);
+        final String jsonRequestBody = objectMapper.writeValueAsString(shelfNameDTO);
 
         when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(originalBookList));
         when(bookListRepository.save(renamedBookList)).thenReturn(renamedBookList);
@@ -82,7 +85,7 @@ class BookListControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(renamedBookList)))
+                .andExpect(content().json(objectMapper.writeValueAsString(renamedBookList)))
                 .andDo(print());
 
     }
@@ -122,7 +125,7 @@ class BookListControllerTest {
         moveShelfDTO.setBooksToBeAdded(booksToBeRemoved);
         moveShelfDTO.setNewBookListId(newBookListId);
 
-        final String jsonRequestBody = TestUtilities.toJsonString(moveShelfDTO);
+        final String jsonRequestBody = objectMapper.writeValueAsString(moveShelfDTO);
 
         when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(originalBookList));
         when(bookListRepository.findById(newBookListId)).thenReturn(Optional.of(originalBookListToBeAddedTo));
@@ -138,7 +141,7 @@ class BookListControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(expectedBookList)))
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedBookList)))
                 .andDo(print());
 
 
@@ -162,7 +165,7 @@ class BookListControllerTest {
         shelfDto.setNewListName(newBookListName);
         shelfDto.setNewBookListId(bookListId);
 
-        final String jsonRequestBody = TestUtilities.toJsonString(shelfDto);
+        final String jsonRequestBody = objectMapper.writeValueAsString(shelfDto);
         when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(originalBookList));
         when(bookListRepository.save(renamedBookList)).thenReturn(renamedBookList);
 
@@ -174,7 +177,7 @@ class BookListControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(renamedBookList)))
+                .andExpect(content().json(objectMapper.writeValueAsString(renamedBookList)))
                 .andDo(print());
 
     }

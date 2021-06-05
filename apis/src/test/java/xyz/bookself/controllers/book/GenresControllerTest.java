@@ -1,5 +1,6 @@
 package xyz.bookself.controllers.book;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.repository.BookRepository;
-import xyz.bookself.controllers.TestUtilities;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -28,6 +28,9 @@ class GenresControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private BookRepository bookRepository;
 
@@ -46,6 +49,6 @@ class GenresControllerTest {
 
         mockMvc.perform(get(apiPrefix + "/any"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(TestUtilities.toJsonString(genres)));
+                .andExpect(content().json(objectMapper.writeValueAsString(genres)));
     }
 }
