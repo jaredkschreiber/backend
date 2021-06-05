@@ -20,8 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -43,6 +42,16 @@ public class BookListControllerTest {
     private BookRepository bookRepository;
     @MockBean
     private UserRepository userRepository;
+
+    @Test
+    void getBookList_Success() throws Exception {
+        var bookList = new BookList();
+        bookList.setId(bookListId);
+
+        when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(bookList));
+        mockMvc.perform(get(apiPrefix + "/" + bookListId))
+            .andExpect(status().isOk());
+    }
 
     @Test
     @WithBookselfUserDetails(id = authenticatedUserId)
@@ -96,6 +105,65 @@ public class BookListControllerTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
 
         mockMvc.perform(post(apiPrefix + "/" + bookListId + "/books/" + bookId))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = authenticatedUserId)
+    void deleteBookFromBookList_Success() throws Exception {
+        var bookList = new BookList();
+        bookList.setUserId(authenticatedUserId);
+
+        var book = new Book();
+        book.setId(bookId);
+
+        Set<String> books = new HashSet<>();
+        books.add(book.getId());
+        bookList.setBooks(books);
+
+        when(userRepository.existsById(authenticatedUserId)).thenReturn(true);
+        when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(bookList));
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        mockMvc.perform(delete(apiPrefix + "/" + bookListId + "/books/" + bookId))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = 2)
+    void deleteBookFromBookList_Unauthorized() throws Exception {
+        var bookList = new BookList();
+        bookList.setUserId(authenticatedUserId);
+
+        var book = new Book();
+        book.setId(bookId);
+
+        Set<String> books = new HashSet<>();
+        books.add(book.getId());
+        bookList.setBooks(books);
+
+        when(userRepository.existsById(authenticatedUserId)).thenReturn(true);
+        when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(bookList));
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        mockMvc.perform(delete(apiPrefix + "/" + bookListId + "/books/" + bookId))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = authenticatedUserId)
+    void deleteBookFromBookList_NotInList_BadRequest() throws Exception {
+        var bookList = new BookList();
+        bookList.setUserId(authenticatedUserId);
+
+        var book = new Book();
+        book.setId(bookId);
+
+        when(userRepository.existsById(authenticatedUserId)).thenReturn(true);
+        when(bookListRepository.findById(bookListId)).thenReturn(Optional.of(bookList));
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        mockMvc.perform(delete(apiPrefix + "/" + bookListId + "/books/" + bookId))
             .andExpect(status().isBadRequest());
     }
 }

@@ -36,22 +36,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Integer id,
-                                        @AuthenticationPrincipal BookselfUserDetails userDetails) {
-        // If nobody is logged in, UNAUTHORIZED
-        if (userDetails == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        // If somebody is logged in but is trying to access somebody else's profile, FORBIDDEN
-        if (!userDetails.getId().equals(id)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-
+    public ResponseEntity<User> getUser(@PathVariable Integer id) {
         // Otherwise look up the user
         return userRepository.findById(id)
-                .map(u -> new ResponseEntity<>(u, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            .map(u -> new ResponseEntity<>(u, HttpStatus.OK))
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(value = "/new-user", consumes = {MediaType.APPLICATION_JSON_VALUE})
