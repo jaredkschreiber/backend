@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -218,5 +219,10 @@ class RatingControllerTest {
         rating.setUserId(authenticatedUserId);
         when(ratingRepository.findLatestRatingByUserForBook(authenticatedUserId, ratedBookId)).thenReturn(Optional.of(rating));
         mockMvc.perform(delete(ENDPOINT)).andExpect(status().isOk());
+    }
+
+    @Test
+    void whenUserDoesNotExist_thenUnauthorizedResponseIsSent() throws Exception {
+        mockMvc.perform(get(ENDPOINT)).andExpect(status().isUnauthorized());
     }
 }

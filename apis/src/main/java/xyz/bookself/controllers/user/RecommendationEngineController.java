@@ -5,20 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import xyz.bookself.books.domain.Author;
-import xyz.bookself.books.domain.Rating;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.books.repository.RatingRepository;
-import xyz.bookself.config.BookselfApiConfiguration;
 import xyz.bookself.controllers.book.BookDTO;
-
 import xyz.bookself.exceptions.UnauthorizedException;
 import xyz.bookself.security.BookselfUserDetails;
 import xyz.bookself.users.repository.BookListRepository;
 import xyz.bookself.users.repository.UserRepository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,26 +30,26 @@ import java.util.stream.Collectors;
 public class RecommendationEngineController {
     private final BookListRepository bookListRepository;
     private final BookRepository bookRepository;
-    private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
 
 
     @Autowired
-    public RecommendationEngineController(BookListRepository repository, BookRepository bookRepository,
-                                RatingRepository ratingRepository, UserRepository userRepository ) {
+    public RecommendationEngineController(BookListRepository repository,
+                                          BookRepository bookRepository,
+                                          UserRepository userRepository ) {
         this.bookListRepository = repository;
         this.bookRepository = bookRepository;
-        this.ratingRepository = ratingRepository;
         this.userRepository = userRepository;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Collection<BookDTO>> getRecommendation(@PathVariable("id") Integer userId, @AuthenticationPrincipal BookselfUserDetails userDetails,
-                                                                 @RequestParam(name = "recommend-by", required = true) String recommendBy) {
+    public ResponseEntity<Collection<BookDTO>> getRecommendation(@PathVariable("id") Integer userId,
+                                                                 @AuthenticationPrincipal BookselfUserDetails userDetails,
+                                                                 @RequestParam(name = "recommend-by") String recommendBy) {
 
         throwIfUserDoesNotExist(userDetails);
 
-        Collection<String> readBookListId = bookListRepository.findAllBooksInUserReadBookList(userId);
+        final Collection<String> readBookListId = bookListRepository.findAllBooksInUserReadBookList(userId);
 
         if(readBookListId.size() != 0)
         {
@@ -79,10 +82,7 @@ public class RecommendationEngineController {
                     Set<String> genreList;
                     for(String bookId : readBookListId) {
                         genreList = bookRepository.findById(bookId).orElseThrow().getGenres();
-                        for (String genre : genreList)
-                        {
-                            informationCollection.add(genre);
-                        }
+                        informationCollection.addAll(genreList);
                     }
 
                     String genre = informationCollection.stream().findAny().get();

@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import xyz.bookself.books.repository.AuthorRepository;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.books.repository.RatingRepository;
+import xyz.bookself.config.CloudWatchConfiguration;
 import xyz.bookself.controllers.book.AuthorController;
 import xyz.bookself.controllers.book.BookController;
 import xyz.bookself.controllers.book.GenreController;
@@ -107,5 +108,4 @@ class SmokeTest {
     void ratingRepositoryLoads() {
         assertThat(ratingRepository).isNotNull();
     }
-
 }

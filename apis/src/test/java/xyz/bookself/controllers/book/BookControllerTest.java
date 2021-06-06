@@ -15,6 +15,7 @@ import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.services.BookService;
 import xyz.bookself.services.PopularityService;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -88,16 +90,66 @@ class BookControllerTest {
 
         when(bookService.findBooksByAuthor(validAuthorId)).thenReturn(books);
 
-        mockMvc.perform(get(apiPrefix + "?authorId=" + validAuthorId))
+        mockMvc.perform(get(apiPrefix).param( "authorId", validAuthorId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonContent));
     }
 
     @Test
+    void givenGenre_whenGetRequestedOnBooksEndpoint_theBooksInThatGenreShouldBeReturned() throws Exception {
+        final String genre = "Some Genre";
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxReturnedBooks)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    b.setGenres(Set.of(genre));
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        when(bookService.findBooksByGenre(genre)).thenReturn(books);
+        mockMvc.perform(get(apiPrefix).param("genre", genre))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(books)));
+    }
+
+    @Test
+    void givenThereAreBooks_whenGetRequestedWithoutQueryParams_thenAnyBooksShouldBeReturned() throws Exception {
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxReturnedBooks)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        when(bookService.findAnyBooks()).thenReturn(books);
+        mockMvc.perform(get(apiPrefix))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(books)));
+    }
+
+    @Test
+    void givenThereArePopularBooks_whenGetRequestedForPopularBooks_thenSomePopularsAreReturned()
+        throws Exception {
+        final Set<BookDTO> books = IntStream.rangeClosed(1, maxReturnedBooks)
+                .mapToObj(i -> {
+                    final Book b = new Book();
+                    b.setId(Integer.toHexString(i));
+                    return b;
+                })
+                .map(BookDTO::new)
+                .collect(Collectors.toSet());
+        when(popularityService.findPopularBooks()).thenReturn(books);
+        mockMvc.perform(get(apiPrefix).param("popular", "yes"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(books)));
+    }
+
+    @Test
     void givenGenre_whenGetRequestedOnPopularBooks_thenBooksFromThatGenreAreReturned()
-    throws Exception {
-        final String genre = "Some+Genre";
-        final String ENDPOINT = apiPrefix + "?popular=yes&genre=" + genre;
+            throws Exception {
+        final String genre = "Some Genre";
         final Set<BookDTO> books = IntStream.rangeClosed(1, maxPopularBooksByGenreCount)
                 .mapToObj(i -> {
                     final Book b = new Book();
@@ -109,7 +161,7 @@ class BookControllerTest {
                 .collect(Collectors.toSet());
         final String jsonContent = objectMapper.writeValueAsString(books);
         when(popularityService.findPopularBooksByGenre(genre)).thenReturn(books);
-        mockMvc.perform(get(ENDPOINT))
+        mockMvc.perform(get(apiPrefix).param("popular", "yes").param("genre", genre))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonContent));
     }
@@ -179,5 +231,19 @@ class BookControllerTest {
 
         mockMvc.perform(get(apiPrefix + "/search?q=" + query))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void testBookDTOConstructorToIncreaseCoverage() {
+        final BookDTO bookDTO = new BookDTO("id",
+                "title",
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "blurb",
+                0,
+                LocalDate.now(),
+                Collections.emptySet(),
+                5.0);
+        assertThat(bookDTO).isNotNull();
     }
 }

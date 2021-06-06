@@ -99,4 +99,33 @@ public class RecommendationEngineTest {
 
     }
 
+    @Test
+    @WithBookselfUserDetails(id = authenticatedUserId)
+    void whenAuthorizedUserGoesForRecommendationByGenre_thenReturnABookBySaidGenre()
+            throws Exception
+    {
+        final String validBookListId = "99";
+        final Set<String> setOfBooks = new HashSet<>(Arrays.asList("book-id-1"));
+
+        final BookList bookListThatExistsInDatabase = new BookList();
+        bookListThatExistsInDatabase.setId(validBookListId);
+
+        final Book foundBook = new Book();
+        foundBook.setGenres(Set.of("genre"));
+
+        final Collection<Book> booksWithSameGenre = IntStream.range(0, 1).mapToObj(i -> {
+            Book newBook = new Book();
+            newBook.setGenres(Set.of("genre"));
+            return newBook;
+        }).collect(Collectors.toSet());
+
+        when(userRepository.existsById(authenticatedUserId)).thenReturn(true);
+        when(bookListRepository.findAllBooksInUserReadBookList(authenticatedUserId)).thenReturn(setOfBooks);
+        when(bookRepository.findById("book-id-1")).thenReturn(Optional.of(foundBook));
+        when(bookRepository.findAllByGenre("genre", 5)).thenReturn(booksWithSameGenre);
+
+        mockMvc.perform(get(apiPrefix + "/" + authenticatedUserId).param("recommend-by", "genre"))
+                .andExpect(status().isOk());
+
+    }
 }
