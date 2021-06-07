@@ -9,5 +9,6 @@ bookself:
     bayesian-estimation-constant-c: ${BOOKSELF_BAYESIAN_ESTIMATION_CONSTANT_C:5.0}
     bayesian-estimation-constant-m: ${BOOKSELF_BAYESIAN_ESTIMATION_CONSTANT_M:3.0}
     popularity-cron-schedule: ${BOOKSELF_POPULARITY_CRON_SCHEDULE:0 0 0 * * *}
+    app-url: ${BOOKSELF_APP_URL:https://bookself.xyz}
   cors:
     allowed-origins: ${BOOKSELF_CORS_ALLOWED_ORIGINS:*}

@@ -32,6 +32,8 @@ dependencies {
 	implementation flywayCore
 	implementation postgresql
 
+	compile('org.springframework.boot:spring-boot-starter-mail')
+
 	annotationProcessor springBootConfigurationProcessor
 
 	testImplementation springBootStarterTest

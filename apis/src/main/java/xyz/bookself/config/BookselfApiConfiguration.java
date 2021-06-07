@@ -17,4 +17,5 @@ public class BookselfApiConfiguration {
     private double bayesianEstimationConstantC;
     private double bayesianEstimationConstantM;
     private String popularityCronSchedule;
+    private String appUrl;
 }
