@@ -2,13 +2,10 @@ package xyz.bookself.controllers.book;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import xyz.bookself.books.domain.AverageRating;
 import xyz.bookself.books.domain.Book;
 import xyz.bookself.books.domain.Rating;
-import xyz.bookself.books.domain.RatingDTOViews;
 
 import java.time.LocalDate;
 import java.util.Optional;

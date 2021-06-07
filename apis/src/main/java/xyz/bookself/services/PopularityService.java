@@ -73,8 +73,8 @@ public class PopularityService {
              * https://fulmicoton.com/posts/bayesian_rating/
              * https://medium.com/district-data-labs/computing-a-bayesian-estimate-of-star-rating-means-651496a890ab
              */
-            final double C = 1.0 * apiConfiguration.getBayesianEstimationConstantC();
-            final double M = 1.0 * apiConfiguration.getBayesianEstimationConstantM();
+            final double C = apiConfiguration.getBayesianEstimationConstantC();
+            final double M = apiConfiguration.getBayesianEstimationConstantM();
 
             final double averageRating = (C * M + totalNumberOfStars) / (C + totalNumberOfReviews);
 

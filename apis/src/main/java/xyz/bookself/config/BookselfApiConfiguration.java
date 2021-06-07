@@ -13,7 +13,8 @@ public class BookselfApiConfiguration {
     private int maxReturnedAuthors;
     private int maxPopularBooksCount;
     private int maxPopularBooksByGenreCount;
-    private int bayesianEstimationConstantC;
-    private int bayesianEstimationConstantM;
+    private int searchResultsPerPage;
+    private double bayesianEstimationConstantC;
+    private double bayesianEstimationConstantM;
     private String popularityCronSchedule;
 }

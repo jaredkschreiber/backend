@@ -1,5 +1,7 @@
 package xyz.bookself.books.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import xyz.bookself.books.domain.Book;
@@ -26,4 +28,10 @@ public interface BookRepository extends JpaRepository<Book, String> {
     // TODO Christian: I think I need to rewrite this slightly
     @Query(nativeQuery = true, value = "SELECT MAX(ts_rank(search, plainto_tsquery('simple', ?1))) AS rank, id FROM search_index GROUP BY id ORDER BY rank DESC LIMIT ?2")
     List<BookRank> findBooksByQuery(String query, int limit);
+
+    @Query(
+            value = "SELECT * FROM (SELECT MAX(ts_rank(search, plainto_tsquery('simple', ?1))) AS rank, id FROM search_index GROUP BY id) AS search_results WHERE search_results.rank > .5 ORDER BY search_results.rank DESC",
+            countQuery = "SELECT COUNT(*) FROM (SELECT * FROM (SELECT MAX(ts_rank(search, plainto_tsquery('simple', ?1))) AS rank, id FROM search_index GROUP BY id) AS search_results WHERE search_results.rank > .5) AS results",
+            nativeQuery = true)
+    Page<BookRank> findBooksByQueryPageable(String query, Pageable pageable);
 }
