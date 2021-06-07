@@ -24,8 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -57,6 +56,33 @@ public class UserControllerTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(userExists));
 
         mockMvc.perform(get(apiPrefix + "/" + 1))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testDeleteUser_Unauthorized() throws Exception {
+        mockMvc.perform(delete(apiPrefix  + "/" + 1))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = 1)
+    void testDeleteUser_Forbidden() throws Exception {
+        mockMvc.perform(delete(apiPrefix  + "/" + 2))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithBookselfUserDetails(id = 1)
+    void testDeleteUser_OK()
+            throws Exception {
+        final User userExists = new User();
+
+        userExists.setUsername("dummyUserName");
+        userExists.setEmail(("dummy@dummy.com"));
+        userExists.setPasswordHash(UUID.randomUUID().toString().replace("-", ""));
+
+        mockMvc.perform(delete(apiPrefix + "/" + 1))
                 .andExpect(status().isOk());
     }
 

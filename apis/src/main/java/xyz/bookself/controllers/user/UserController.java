@@ -69,6 +69,24 @@ public class UserController {
 
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal BookselfUserDetails userDetails,
+                                           @PathVariable Integer id) {
+        // If nobody is logged in, UNAUTHORIZED
+        if (userDetails == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // If somebody is logged in but is trying to access somebody else's profile, FORBIDDEN
+        if (!userDetails.getId().equals(id)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        // Finally, delete the user
+        userRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     /**
      * Get all lists user owns
      * @param id user id

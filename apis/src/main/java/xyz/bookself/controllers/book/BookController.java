@@ -3,21 +3,25 @@ package xyz.bookself.controllers.book;
 import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.bookself.books.domain.BookRank;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
+import xyz.bookself.exceptions.NotFoundException;
 import xyz.bookself.services.BookService;
 import xyz.bookself.services.PopularityService;
 
-import javax.xml.transform.OutputKeys;
+import javax.validation.constraints.Min;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -97,5 +101,30 @@ public class BookController {
             // would be interesting to extend our filtering logic here; e.g., if we have lots of good matches, we can throw out the bad ones
             .filter(book -> book.rank != 0)
             .collect(Collectors.toList());
+    }
+
+    @GetMapping("/search-paginated")
+    public ResponseEntity<SearchResultsPage> searchPageable(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "page") @Min(1) Optional<Integer> p) {
+        final int page = p.orElse(1) - 1;
+        final int resultsPerPage = apiConfiguration.getSearchResultsPerPage();
+        final Page<BookRank> results = bookRepository.findBooksByQueryPageable(query, PageRequest.of(page, resultsPerPage));
+        final long totalElements = results.getTotalElements();
+        final int totalPages = results.getTotalPages();
+        if(page > totalPages - 1) {
+            throw new NotFoundException();
+        }
+        log.info("Retrieved Page {} of {} out of a total of {} results.", 1 + page, totalPages, totalElements);
+        final List<BookWithRankDTO> rankedBooks = results.stream()
+                .map(bookRank -> {
+                    final var book = new BookDTO(bookRepository.findById(bookRank.getId()).orElseThrow());
+                    final var rank = bookRank.getRank();
+                    return new BookWithRankDTO(book, rank);
+                })
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+        final SearchResultsPage searchResultsPage = new SearchResultsPage(1 + page, totalPages, totalElements, rankedBooks);
+        return new ResponseEntity<>(searchResultsPage, HttpStatus.OK);
     }
 }
