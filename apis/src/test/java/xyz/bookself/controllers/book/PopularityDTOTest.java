@@ -38,4 +38,13 @@ class PopularityDTOTest {
         assertThat(dto.getBookId()).isEqualTo(bookId);
         assertThat(dto.getRank()).isEqualTo(rank);
     }
+
+    @Test
+    void validDTOIsCreatedFromBookIdAndRank() {
+        final String bookId = "1234";
+        final Integer rank = 3;
+        final PopularityDTO dto = new PopularityDTO(bookId, rank);
+        assertThat(dto.getBookId()).isEqualTo(bookId);
+        assertThat(dto.getRank()).isEqualTo(rank);
+    }
 }

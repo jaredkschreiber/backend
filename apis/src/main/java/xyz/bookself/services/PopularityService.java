@@ -12,7 +12,6 @@ import xyz.bookself.books.repository.PopularityRepository;
 import xyz.bookself.books.repository.RatingRepository;
 import xyz.bookself.config.BookselfApiConfiguration;
 import xyz.bookself.controllers.book.BookDTO;
-import xyz.bookself.controllers.book.PopularityDTO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,15 +55,29 @@ public class PopularityService {
     @Scheduled(cron = "${bookself.api.popularity-cron-schedule}")
     public void computePopularityRanks() {
         log.info("Begin computing popularity...");
+
         final Map<Book, Set<Rating>> ratingsGroupedByBooks = getRatingsGroupedByBook();
         final Map<Book, Double> averageRatings = new HashMap<>();
 
         ratingsGroupedByBooks.keySet().forEach(book -> {
             final Set<Rating> ratings = ratingsGroupedByBooks.get(book);
-            final Double averageRating = ratings.stream()
+
+            final int totalNumberOfReviews = ratings.size();
+            final int totalNumberOfStars = ratings
+                    .stream()
                     .map(Rating::getRating)
-                    .reduce(0, Integer::sum)
-                    * (1.0 / ratings.size());
+                    .reduce(0, Integer::sum);
+
+            /*
+             * Bayesian Estimation
+             * https://fulmicoton.com/posts/bayesian_rating/
+             * https://medium.com/district-data-labs/computing-a-bayesian-estimate-of-star-rating-means-651496a890ab
+             */
+            final double C = 1.0 * apiConfiguration.getBayesianEstimationConstantC();
+            final double M = 1.0 * apiConfiguration.getBayesianEstimationConstantM();
+
+            final double averageRating = (C * M + totalNumberOfStars) / (C + totalNumberOfReviews);
+
             averageRatings.put(book, averageRating);
         });
         log.info("Done computing popularity...");

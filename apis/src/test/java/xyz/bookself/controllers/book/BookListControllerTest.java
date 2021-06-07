@@ -1,14 +1,14 @@
 package xyz.bookself.controllers.book;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import xyz.bookself.books.domain.Book;
-import xyz.bookself.books.domain.Rating;
 import xyz.bookself.books.repository.BookRepository;
 import xyz.bookself.security.WithBookselfUserDetails;
 import xyz.bookself.users.domain.BookList;
@@ -18,9 +18,13 @@ import xyz.bookself.users.repository.UserRepository;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -35,6 +39,8 @@ public class BookListControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private BookListRepository bookListRepository;
@@ -42,6 +48,8 @@ public class BookListControllerTest {
     private BookRepository bookRepository;
     @MockBean
     private UserRepository userRepository;
+    @Value("${bookself.api.max-returned-books}")
+    private int maxReturnedBooks;
 
     @Test
     void getBookList_Success() throws Exception {
@@ -165,5 +173,27 @@ public class BookListControllerTest {
 
         mockMvc.perform(delete(apiPrefix + "/" + bookListId + "/books/" + bookId))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void giveANonEmptyBookList_whenGetRequestedWithIdOfList_themBooksBelongingToListAreReturned()
+            throws Exception {
+
+        final Set<String> bookIds = Set.of("id1", "id2", "id3", "id4");
+        final Set<Book> books = bookIds
+                .stream()
+                .map(id -> {
+                    final Book b = new Book();
+                    b.setId(id);
+                    when(bookRepository.findById(id)).thenReturn(Optional.of(b));
+                    return b;
+                })
+                .collect(Collectors.toSet());
+
+        when(bookListRepository.findAllBookIdInList(bookListId, maxReturnedBooks)).thenReturn(bookIds);
+
+        mockMvc.perform(get(apiPrefix + "/" + bookListId + "/books"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(books)));
     }
 }
